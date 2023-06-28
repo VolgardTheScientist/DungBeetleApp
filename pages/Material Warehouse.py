@@ -14,15 +14,11 @@ import requests
 #         f.write(response.content)
 
 def download_file_from_github(url, local_path):
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()  # Ensure we got a valid response
-        with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-    except Exception as e:
-        st.write(f"Exception occurred when writing file: {e}")
-        st.write(f"Local path: {local_path}")
+    response = requests.get(url, stream=True)
+    response.raise_for_status()  # Ensure we got a valid response
+    with open(local_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
 
 
 def get_github_repo_files(user, repo, path):
@@ -38,7 +34,7 @@ def download_ifc_file_from_github(ifc_file_name):
     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
     # Call the updated download_file_from_github function
     download_file_from_github(url, local_path)
-    st.write(local_path)
+    # Debugging code: st.write(local_path)
     return local_path
 
 
