@@ -115,6 +115,7 @@ selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 def download_product_by_guid(input_file_name, guid):
     # Load the source IFC file
     ifc_file_path = download_ifc_file_from_github(f"{input_file_name}.ifc")
+    print(f"Attempting to open file at: {ifc_file_path}")
     src_ifc_file = ifcopenshell.open(ifc_file_path)
 
     # Create a new IFC file (IFC4 schema)
@@ -125,6 +126,14 @@ def download_product_by_guid(input_file_name, guid):
 
     # Add the product and its PSets and QSets to the new IFC file
     new_ifc_file.add(product)
+
+
+    # Check if the downloaded file is a valid IFC file by adding a try-except block when opening the file
+    try:
+        src_ifc_file = ifcopenshell.open(ifc_file_path)
+    except Exception as e:
+        print(f"Failed to open IFC file. Exception: {e}")
+        return None, None
 
     # Save the new IFC file as a temporary file
     new_ifc_file_name = f"{os.path.splitext(ifc_file_path)[0]}_{guid}.ifc"
