@@ -21,8 +21,8 @@ def download_file_from_github(url, local_path):
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
     except Exception as e:
-        print(f"Exception occurred when writing file: {e}")
-        print(f"Local path: {local_path}")
+        st.write(f"Exception occurred when writing file: {e}")
+        st.write(f"Local path: {local_path}")
 
 
 def get_github_repo_files(user, repo, path):
@@ -115,7 +115,7 @@ selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 def download_product_by_guid(input_file_name, guid):
     # Load the source IFC file
     ifc_file_path = download_ifc_file_from_github(f"{input_file_name}.ifc")
-    print(f"Attempting to open file at: {ifc_file_path}")
+    st.write(f"Attempting to open file at: {ifc_file_path}")
     src_ifc_file = ifcopenshell.open(ifc_file_path)
 
     # Create a new IFC file (IFC4 schema)
@@ -132,7 +132,7 @@ def download_product_by_guid(input_file_name, guid):
     try:
         src_ifc_file = ifcopenshell.open(ifc_file_path)
     except Exception as e:
-        print(f"Failed to open IFC file. Exception: {e}")
+        st.write(f"Failed to open IFC file. Exception: {e}")
         return None, None
 
     # Save the new IFC file as a temporary file
