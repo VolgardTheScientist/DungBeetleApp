@@ -35,13 +35,10 @@ def download_ifc_file_from_github(ifc_file_name):
     # GitHub repository's raw content path
     github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
     url = github_repo_raw_path + ifc_file_name
-    local_path = tempfile.gettempdir() + '/' + ifc_file_name  # using tempfile for cross-platform compatibility
-    
+    local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
     # Call the updated download_file_from_github function
     download_file_from_github(url, local_path)
-    
     return local_path
-
 
 
 # GitHub repository details
