@@ -195,13 +195,25 @@ for df_name, df in dataframes.items():
 
             if st.button("Download"):
                 if input_file_name and input_guid:  # Ensure both input_file_name and input_guid are not None
-                    ifc_file_path = os.path.join(path, f"{input_file_name}.ifc")
-                    temp_file_path, new_ifc_file_name = download_product_by_guid(ifc_file_path, input_guid)
+                    temp_file_path, new_ifc_file_name = download_product_by_guid(input_file_name, input_guid)
 
                     # Create a download link for the new IFC file
                     download_link = get_binary_file_downloader_link(temp_file_path, new_ifc_file_name)
                     st.markdown(download_link, unsafe_allow_html=True)
 
                     st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
+
+
+
+          # if st.button("Download"):
+          #     if input_file_name and input_guid:  # Ensure both input_file_name and input_guid are not None
+          #         ifc_file_path = os.path.join(path, f"{input_file_name}.ifc")
+          #         temp_file_path, new_ifc_file_name = download_product_by_guid(ifc_file_path, input_guid)
+
+          #         # Create a download link for the new IFC file
+          #         download_link = get_binary_file_downloader_link(temp_file_path, new_ifc_file_name)
+          #         st.markdown(download_link, unsafe_allow_html=True)
+
+          #         st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
 
         
