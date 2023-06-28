@@ -19,6 +19,15 @@ def get_github_repo_files(user, repo, path):
     files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
     return files
 
+def download_ifc_file_from_github(ifc_file_name):
+    # GitHub repository's raw content path
+    github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
+    url = github_repo_raw_path + ifc_file_name
+    local_path = tempfile.gettempdir() + '/' + ifc_file_name  # using tempfile for cross-platform compatibility
+    download_file_from_github(url, local_path)
+    return local_path
+
+
 # GitHub repository details
 github_user = 'VolgardTheScientist'
 github_repo = 'DungBeetleApp'
@@ -31,10 +40,6 @@ github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github
 path = github_repo_raw_path
 
 dataframes = {}
-
-
-
-
 
 column_map = {
     'PredefinedType': 'Product Type',
@@ -91,8 +96,9 @@ tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if d
 
 selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 
-def download_product_by_guid(ifc_file_path, guid):
+def download_product_by_guid(input_file_name, guid):
     # Load the source IFC file
+    ifc_file_path = download_ifc_file_from_github(f"{input_file_name}.ifc")
     src_ifc_file = ifcopenshell.open(ifc_file_path)
 
     # Create a new IFC file (IFC4 schema)
