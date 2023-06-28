@@ -38,6 +38,7 @@ def download_ifc_file_from_github(ifc_file_name):
     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
     # Call the updated download_file_from_github function
     download_file_from_github(url, local_path)
+    st.write(local_path)
     return local_path
 
 
