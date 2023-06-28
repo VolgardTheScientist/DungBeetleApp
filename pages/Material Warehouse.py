@@ -6,9 +6,35 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import ifcopenshell
 import tempfile
 import base64
+import requests
 
-path = '.\\warehouse\\'
-pickles = [file for file in os.listdir(path) if file.endswith('.pickle')]
+def download_file_from_github(url, local_path):
+    response = requests.get(url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+
+def get_github_repo_files(user, repo, path):
+    url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
+    response = requests.get(url)
+    files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
+    return files
+
+# GitHub repository details
+github_user = 'VolgardTheScientist'
+github_repo = 'DungBeetleApp'
+github_path = 'warehouse'
+
+pickle_files = get_github_repo_files(github_user, github_repo, github_path)
+
+# GitHub repository's raw content path
+github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
+path = github_repo_raw_path
+
+dataframes = {}
+
+
+
+
 
 column_map = {
     'PredefinedType': 'Product Type',
@@ -38,11 +64,13 @@ tab_map = {
     'wh_IfcDoor': 'Doors'
 }
 
-dataframes = {}
-
-for pickle_file in pickles:
-    with open(os.path.join(path, pickle_file), 'rb') as f:
+for pickle_file in pickle_files:
+    url = github_repo_raw_path + pickle_file
+    local_path = tempfile.gettempdir() + '/' + pickle_file  # using tempfile for cross-platform compatibility
+    download_file_from_github(url, local_path)
+    with open(local_path, 'rb') as f:
         df = pickle.load(f)
+    # Rest of your code...
 
     # Keep only the columns present in both the dataframe and the column_map
     columns_to_keep = list(set(df.columns) & set(column_map.keys()))
