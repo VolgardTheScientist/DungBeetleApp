@@ -8,10 +8,22 @@ import tempfile
 import base64
 import requests
 
+# def download_file_from_github(url, local_path):
+#     response = requests.get(url)
+#     with open(local_path, 'wb') as f:
+#         f.write(response.content)
+
 def download_file_from_github(url, local_path):
-    response = requests.get(url)
-    with open(local_path, 'wb') as f:
-        f.write(response.content)
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Ensure we got a valid response
+        with open(local_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+    except Exception as e:
+        print(f"Exception occurred when writing file: {e}")
+        print(f"Local path: {local_path}")
+
 
 def get_github_repo_files(user, repo, path):
     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
@@ -24,8 +36,12 @@ def download_ifc_file_from_github(ifc_file_name):
     github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
     url = github_repo_raw_path + ifc_file_name
     local_path = tempfile.gettempdir() + '/' + ifc_file_name  # using tempfile for cross-platform compatibility
+    
+    # Call the updated download_file_from_github function
     download_file_from_github(url, local_path)
+    
     return local_path
+
 
 
 # GitHub repository details
