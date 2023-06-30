@@ -1,5 +1,6 @@
 import streamlit as st
 import ifcopenshell
+import base64
 
 session = st.session_state
 
@@ -19,11 +20,40 @@ def main():
     st.set_page_config(
         layout= "wide",
         page_title="IFC Stream",
-        page_icon="✍️",
     )
-    st.image('Dung_Beetle.png')
+
+    # Add App logo
+    with open("dung_beetle.jpg", "rb") as image_file:
+        IMAGE_BASE64 = base64.b64encode(image_file.read()).decode()
+
+    st.markdown(
+        f"""
+        <style>
+        #beetle {{
+            font-size: 10rem;
+            line-height: 8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background-image: url(data:image/jpg;base64,{IMAGE_BASE64});
+            background-size: auto;
+            -webkit-background-clip: text;
+            color: transparent;
+            position: relative;
+            margin-left: -0.75rem;  /* Change this as per your requirement */
+        }}
+
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+    # Use st.markdown to create text with a custom class
+    st.markdown('<div id="beetle">Dung</br>Beetle</div>', unsafe_allow_html=True)
+
+
+    # st.image('Dung_Beetle.png')
     st.title("Re-use building material")
-    st.title("TESTING NEW BUILD")
     st.markdown(
         """
         Transition from linear (take, make, dispose) towards circular economy (make, use, recycle) is a fundamental prerequisite for achieving a sustainable growth and limiting global warming.
