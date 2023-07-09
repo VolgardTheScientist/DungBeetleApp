@@ -7,6 +7,8 @@ import ifcopenshell
 import tempfile
 import base64
 import requests
+from pages.ifc_viewer.ifc_viewer import ifc_viewer
+
 
 # def download_file_from_github(url, local_path):
 #     response = requests.get(url)
@@ -181,16 +183,19 @@ for df_name, df in dataframes.items():
             Project_ID = str(Project_ID)
         else:
             Project_ID = None       
-                
+
         with st.sidebar:
             input_file_name = Project_ID
             input_guid = None  # Initialize input_guid as None
+
+            # Initialize url_to_ifc_file as an empty string
+            url_to_ifc_file = ''
 
             # Check if the 'Global ID' column exists in the dataframe
             if 'Global ID' in sel_row_for_map.columns:
                 input_guid = sel_row_for_map['Global ID'].iloc[0]
 
-            if st.button("Download"):
+            if st.button("Preview"):
                 if input_file_name and input_guid:  # Ensure both input_file_name and input_guid are not None
                     temp_file_path, new_ifc_file_name = download_product_by_guid(input_file_name, input_guid)
 
@@ -198,7 +203,16 @@ for df_name, df in dataframes.items():
                     download_link = get_binary_file_downloader_link(temp_file_path, new_ifc_file_name)
                     st.markdown(download_link, unsafe_allow_html=True)
 
-                    st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
+                    # Generate a url for the IFC file
+                    url_to_ifc_file = f'file://{temp_file_path}/{new_ifc_file_name}' 
+
+        # Call the IFC viewer function
+        ifc_viewer(url_to_ifc_file)
+
+        st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
+
+
+
 
 
 
