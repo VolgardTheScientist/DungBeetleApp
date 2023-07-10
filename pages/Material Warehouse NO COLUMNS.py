@@ -10,9 +10,6 @@ import requests
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
 
-st.set_page_config(layout="wide")
-st.title("Digital material warehouse")
-
 # point to the key file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), 'able-analyst-392315-363ff32d54d8.json')
 
@@ -26,27 +23,11 @@ def download_file_from_github(url, local_path):
         for chunk in response.iter_content(chunk_size=8192):
             f.write(chunk)
 
-# def get_github_repo_files(user, repo, path):
-#     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
-#     response = requests.get(url)
-#     files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
-#     return files
-
 def get_github_repo_files(user, repo, path):
     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
     response = requests.get(url)
-    json_response = response.json()
-
-    if isinstance(json_response, dict) and 'message' in json_response:
-        st.error(f"Error getting files: {json_response['message']}")
-        return []
-
-    if isinstance(json_response, list):
-        return [file['name'] for file in json_response if file['name'].endswith('.pickle')]
-    
-    st.error("Unexpected response format.")
-    return []
-
+    files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
+    return files
 
 def download_ifc_file_from_github(ifc_file_name):
     # GitHub repository's raw content path
@@ -131,7 +112,8 @@ for pickle_file in pickle_files:
     df_name = pickle_file[:-7]
     dataframes[df_name] = df
 
-
+st.set_page_config(layout="wide")
+st.title("Digital material warehouse")
 
 # Make sure only the tabs that have a corresponding dataframe are displayed
 tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if df_name in tab_map]
@@ -179,13 +161,8 @@ for df_name, df in dataframes.items():
         st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
         grid_table, sel_row = AgGrid_with_display_rules()
         sel_row_for_map = pd.DataFrame(sel_row)
-        # st.write("See map below for location of our building products, choose product group from the sidebar")
-        # Initialize the columns
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.subheader('Product location')             
-            st.map(sel_row_for_map)
+        st.write("See map below for location of our building products, choose product group from the sidebar")
+        st.map(sel_row_for_map)
         with st.sidebar:
             st.write('To download an IFC file, select a single product from the list and press download button below')
 
@@ -220,9 +197,7 @@ for df_name, df in dataframes.items():
                     url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                     url = url_to_ifc_file
 
-        # Call the IFC viewer function
-        with col2:
-            st.subheader('Product preview')  
-            ifc_viewer(url)
+          # Call the IFC viewer function
+        ifc_viewer(url)
 
         st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
