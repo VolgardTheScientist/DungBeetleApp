@@ -30,9 +30,7 @@ def list_blobs(bucket_name):
     blobs = storage_client.list_blobs(bucket_name)
     return [blob.name for blob in blobs if blob.name.endswith('.pickle')]
 
-# GCS details
-bucket_name = 'pickle_warehouse'
-pickle_files = list_blobs(bucket_name)
+
 
 
 
