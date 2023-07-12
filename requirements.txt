@@ -7,3 +7,4 @@ pandas
 xlsxwriter
 geopandas
 geopy
+google-cloud-storage
