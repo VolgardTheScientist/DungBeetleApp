@@ -9,12 +9,40 @@ import base64
 import requests
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
+from google.oauth2.service_account import Credentials
 
-# point to the key file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), 'able-analyst-392315-363ff32d54d8.json')
+st.set_page_config(layout="wide")
+st.title("Digital material warehouse")
 
 # Create a Google Cloud Storage client
 storage_client = storage.Client()
+
+# GCS Pickles trial: 
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    st.write(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+
+def list_blobs(bucket_name):
+    storage_client = storage.Client()
+    blobs = storage_client.list_blobs(bucket_name)
+    return [blob.name for blob in blobs if blob.name.endswith('.pickle')]
+
+# GCS details
+bucket_name = 'pickle_warehouse'
+pickle_files = list_blobs(bucket_name)
+
+
+
+
+
+
+
+
+
+# End of GCS Pickles trial: 
 
 def download_file_from_github(url, local_path):
     response = requests.get(url, stream=True)
@@ -26,8 +54,18 @@ def download_file_from_github(url, local_path):
 def get_github_repo_files(user, repo, path):
     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
     response = requests.get(url)
-    files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
-    return files
+    json_response = response.json()
+
+    if isinstance(json_response, dict) and 'message' in json_response:
+        st.error(f"Error getting files: {json_response['message']}")
+        return []
+
+    if isinstance(json_response, list):
+        return [file['name'] for file in json_response if file['name'].endswith('.pickle')]
+    
+    st.error("Unexpected response format.")
+    return []
+
 
 def download_ifc_file_from_github(ifc_file_name):
     # GitHub repository's raw content path
@@ -40,6 +78,8 @@ def download_ifc_file_from_github(ifc_file_name):
     return local_path
 
 def upload_to_gcs(data, bucket_name, blob_name):
+    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.bucket(bucket_name)
     # List all blobs and convert the iterator to a list
     blobs = list(bucket.list_blobs())    
@@ -94,12 +134,10 @@ tab_map = {
 }
 
 for pickle_file in pickle_files:
-    url = github_repo_raw_path + pickle_file
-    local_path = tempfile.gettempdir() + '/' + pickle_file  # using tempfile for cross-platform compatibility
-    download_file_from_github(url, local_path)
+    local_path = tempfile.gettempdir() + '/' + pickle_file.split('/')[-1] # split blob name by '/' and take the last part as file name
+    download_blob(bucket_name, pickle_file, local_path)
     with open(local_path, 'rb') as f:
         df = pickle.load(f)
-    # Rest of your code...
 
     # Keep only the columns present in both the dataframe and the column_map
     columns_to_keep = list(set(df.columns) & set(column_map.keys()))
@@ -112,9 +150,6 @@ for pickle_file in pickle_files:
     df_name = pickle_file[:-7]
     dataframes[df_name] = df
 
-st.set_page_config(layout="wide")
-st.title("Digital material warehouse")
-
 # Make sure only the tabs that have a corresponding dataframe are displayed
 tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if df_name in tab_map]
 
@@ -125,11 +160,20 @@ def download_product_by_guid(input_file_name, guid):
 
     new_ifc_file = ifcopenshell.file(schema="IFC4")
     product = src_ifc_file.by_guid(guid)
-    new_ifc_file.add(product)
+    new_product = new_ifc_file.add(product)
 
-    # Instead of saving the IFC data to a temp file, we'll convert it to a string
+    # Copy over the IfcUnitAssignment and related IfcSIUnits
+    original_project = src_ifc_file.by_type('IfcProject')[0]
+    new_project = new_ifc_file.add(original_project)
+
+    for unit_assignment in src_ifc_file.by_type("IfcUnitAssignment"):
+        new_project.UnitsInContext = new_ifc_file.add(unit_assignment)
+
+    for unit in src_ifc_file.by_type("IfcUnit"):
+        new_project.UnitsInContext.Units.append(new_ifc_file.add(unit))
+
     new_ifc_file_str = new_ifc_file.to_string()
-
+    
     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
 
@@ -161,10 +205,15 @@ for df_name, df in dataframes.items():
         st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
         grid_table, sel_row = AgGrid_with_display_rules()
         sel_row_for_map = pd.DataFrame(sel_row)
-        st.write("See map below for location of our building products, choose product group from the sidebar")
-        st.map(sel_row_for_map)
+        # st.write("See map below for location of our building products, choose product group from the sidebar")
+        # Initialize the columns
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader('Product location')             
+            st.map(sel_row_for_map)
         with st.sidebar:
-            st.write('To download an IFC file, select a single product from the list and press download button below')
+            st.write('To preview & download an IFC file, select a single product from the list and press download button below')
 
         if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
             Global_ID = sel_row_for_map['Global ID'].iloc[0]
@@ -197,7 +246,9 @@ for df_name, df in dataframes.items():
                     url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                     url = url_to_ifc_file
 
-          # Call the IFC viewer function
-        ifc_viewer(url)
+        # Call the IFC viewer function
+        with col2:
+            st.subheader('Product preview')  
+            ifc_viewer(url)
 
         st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
