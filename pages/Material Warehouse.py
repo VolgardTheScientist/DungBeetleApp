@@ -14,7 +14,8 @@ st.set_page_config(layout="wide")
 st.title("Digital material warehouse")
 
 # point to the key file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), 'able-analyst-392315-363ff32d54d8.json')
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), 'able-analyst-392315-363ff32d54d8.json')
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
 
 # Create a Google Cloud Storage client
 storage_client = storage.Client()
@@ -25,12 +26,6 @@ def download_file_from_github(url, local_path):
     with open(local_path, 'wb') as f:
         for chunk in response.iter_content(chunk_size=8192):
             f.write(chunk)
-
-# def get_github_repo_files(user, repo, path):
-#     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
-#     response = requests.get(url)
-#     files = [file['name'] for file in response.json() if file['name'].endswith('.pickle')]
-#     return files
 
 def get_github_repo_files(user, repo, path):
     url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
@@ -209,7 +204,7 @@ for df_name, df in dataframes.items():
             st.subheader('Product location')             
             st.map(sel_row_for_map)
         with st.sidebar:
-            st.write('To download an IFC file, select a single product from the list and press download button below')
+            st.write('To preview & download an IFC file, select a single product from the list and press download button below')
 
         if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
             Global_ID = sel_row_for_map['Global ID'].iloc[0]
