@@ -20,10 +20,23 @@ viewer.axes.setAxes();
 viewer.grid.setGrid();
 
 async function loadIfc(url) {
-    const model = await viewer.IFC.loadIfcUrl(url);
+    // Load the model
+    const model = await viewer.IFC.loadIfcUrl(url, COORDINATE_TO_ORIGIN = true);
+  
+    // // Create a bounding box around the model
+    // const bbox = new Box3().setFromObject(model.mesh);
+  
+    // // Compute the center of the bounding box
+    // const center = new Vector3();
+    // bbox.getCenter(center);
+  
+    // // Translate the model so that the center of the bounding box is at the origin
+    // model.mesh.position.sub(center);
+  
+    // Add dropped shadow and post-processing effect
     await viewer.shadowDropper.renderShadow(model.modelID);
-    viewer.context.renderer.postProduction.active = true;
-}
+    viewer.context.renderer.postProduction.active = true;  
+  }
 
 function onDataFromPython(event) {
     if (event.data.type !== "streamlit:render") return;

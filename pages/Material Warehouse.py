@@ -138,16 +138,38 @@ tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if d
 
 selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 
+# def download_product_by_guid(input_file_name, guid):
+#     src_ifc_file = ifcopenshell.open(download_ifc_file_from_github(f"{input_file_name}.ifc"))
+# 
+#     new_ifc_file = ifcopenshell.file(schema="IFC4")
+#     product = src_ifc_file.by_guid(guid)
+#     new_ifc_file.add(product)
+# 
+#     # Instead of saving the IFC data to a temp file, we'll convert it to a string
+#     new_ifc_file_str = new_ifc_file.to_string()
+# 
+#     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
+
+
 def download_product_by_guid(input_file_name, guid):
     src_ifc_file = ifcopenshell.open(download_ifc_file_from_github(f"{input_file_name}.ifc"))
 
     new_ifc_file = ifcopenshell.file(schema="IFC4")
     product = src_ifc_file.by_guid(guid)
-    new_ifc_file.add(product)
+    new_product = new_ifc_file.add(product)
 
-    # Instead of saving the IFC data to a temp file, we'll convert it to a string
+    # Copy over the IfcUnitAssignment and related IfcSIUnits
+    original_project = src_ifc_file.by_type('IfcProject')[0]
+    new_project = new_ifc_file.add(original_project)
+
+    for unit_assignment in src_ifc_file.by_type("IfcUnitAssignment"):
+        new_project.UnitsInContext = new_ifc_file.add(unit_assignment)
+
+    for unit in src_ifc_file.by_type("IfcUnit"):
+        new_project.UnitsInContext.Units.append(new_ifc_file.add(unit))
+
     new_ifc_file_str = new_ifc_file.to_string()
-
+    
     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
 
