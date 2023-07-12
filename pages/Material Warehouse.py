@@ -9,13 +9,13 @@ import base64
 import requests
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
+from google.oauth2.service_account import Credentials
 
 st.set_page_config(layout="wide")
 st.title("Digital material warehouse")
 
-# point to the key file
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), 'able-analyst-392315-363ff32d54d8.json')
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
+# point to the key file - ONLY for LOCAL TESTING
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
 
 # Create a Google Cloud Storage client
 storage_client = storage.Client()
@@ -54,6 +54,8 @@ def download_ifc_file_from_github(ifc_file_name):
     return local_path
 
 def upload_to_gcs(data, bucket_name, blob_name):
+    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.bucket(bucket_name)
     # List all blobs and convert the iterator to a list
     blobs = list(bucket.list_blobs())    
