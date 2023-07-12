@@ -55,10 +55,7 @@ def download_ifc_file_from_github(ifc_file_name):
     return local_path
 
 def upload_to_gcs(data, bucket_name, blob_name):
-    credentials_string = st.secrets["google"]["GOOGLE_APPLICATION_CREDENTIALS"]
-    credentials_string = credentials_string.replace("\n", "\\n")
-    credentials_json = json.loads(credentials_string)
-    credentials = Credentials.from_service_account_info(credentials_json)
+    credentials = Credentials.from_service_account_info(st.secrets["google"]["GOOGLE_APPLICATION_CREDENTIALS"])
     storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.bucket(bucket_name)
     # List all blobs and convert the iterator to a list
