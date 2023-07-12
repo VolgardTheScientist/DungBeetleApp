@@ -40,7 +40,7 @@ def get_gcs_bucket_files(bucket_name):
 
 # Other function definitions...
 
-bucket_name = 'pickles_warehouse'
+bucket_name = 'pickle_warehouse'
 pickle_files = get_gcs_bucket_files(bucket_name)
 
 for pickle_file in pickle_files:
