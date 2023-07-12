@@ -19,6 +19,8 @@ st.title("Accessing GCS Pickles Warehouse")
 storage_client = storage.Client()
 
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
+    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
     blob.download_to_filename(destination_file_name)
@@ -28,6 +30,8 @@ def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
 # Other function definitions...
 
 def get_gcs_bucket_files(bucket_name):
+    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    storage_client = storage.Client(credentials=credentials)
 
     # Get the bucket from the Google Cloud Storage
     bucket = storage_client.get_bucket(bucket_name)
