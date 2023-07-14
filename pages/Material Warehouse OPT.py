@@ -255,21 +255,4 @@ def create_user_interface():
 
             st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
 
-
-def AgGrid_TESTING(df):
-    gd = GridOptionsBuilder.from_dataframe(df)
-    gd.configure_pagination(enabled=True)
-    gd.configure_default_column(editable=False, groupable=True)
-    gd.configure_selection(selection_mode='multiple', use_checkbox=True)
-    gridoptions = gd.build()
-    grid_table = AgGrid(df, gridOptions=gridoptions,
-                        update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        height=400,
-                        allow_unsafe_jscode=True
-                        )
-    sel_row = grid_table["selected_rows"]
-    st.write(sel_row)
-    return grid_table, sel_row
-
-AgGrid_TESTING(df)
 create_user_interface()
