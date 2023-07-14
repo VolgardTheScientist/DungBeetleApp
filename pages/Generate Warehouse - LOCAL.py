@@ -59,7 +59,7 @@ def get_project_geocoordinates(generated_df):
     generated_df['latitude'] = np.nan
     generated_df['longitude'] = np.nan
     generated_df['altitude'] = np.nan
-    for idx, point in generated_df['point'].iteritems():
+    for idx, point in generated_df['point'].items():
         if not np.isnan(point[0]):
             generated_df.at[idx, 'latitude'] = point[0]
             generated_df.at[idx, 'longitude'] = point[1]
