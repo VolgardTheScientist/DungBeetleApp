@@ -12,6 +12,8 @@ import tempfile
 import os
 import json
 
+st.write(pd.__version__)
+
 # Create a Google Cloud Storage client
 # Check if st.secrets is available (i.e., the app is being run on Streamlit Cloud)
 # Try to access st.secrets (this will fail if running locally without a secrets.toml file)
