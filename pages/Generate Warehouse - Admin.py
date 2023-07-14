@@ -76,7 +76,7 @@ if uploaded_file is not None:
     # Open the IFC file
     ifc_file = ifcopenshell.open(temp_path)
     # Get the project address
-    building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file)
+    ### building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file)
     # Loop through the IfcEntities and append data to the respective dataframe
     for entity in IfcEntities:
         warehouse_data = ifchelper.get_objects_data_by_class(ifc_file, entity)
@@ -89,7 +89,7 @@ if uploaded_file is not None:
         df['Canton'] = canton
         df['Country'] = country
         df['Complete address'] = complete_address
-        get_project_geocoordinates(df)
+        ### get_project_geocoordinates(df)
         # Remove rows with missing latitude or longitude values
         df = df.dropna(subset=['latitude', 'longitude'])
         dataframes["wh_" + entity] = pd.concat([dataframes["wh_" + entity], df], ignore_index=True)
