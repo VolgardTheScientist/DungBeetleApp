@@ -185,7 +185,7 @@ def get_binary_file_downloader_link(file_path, file_label):
     href = f'<a download="{file_label}" href="data:application/octet-stream;base64,{b64}">Download {file_label}</a>'
     return href
 
-def AgGrid_with_display_rules():
+def AgGrid_with_display_rules(df):
     gd = GridOptionsBuilder.from_dataframe(df)
     gd.configure_pagination(enabled=True)
     gd.configure_default_column(editable=False, groupable=True)
@@ -205,7 +205,7 @@ def create_user_interface():
     for df_name, df in dataframes.items():
         if tab_map.get(df_name, df_name) == selected_tab:
             st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
-            grid_table, sel_row = AgGrid_with_display_rules()
+            grid_table, sel_row = AgGrid_with_display_rules(df)
             sel_row_for_map = pd.DataFrame(sel_row)
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
