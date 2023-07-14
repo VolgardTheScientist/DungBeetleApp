@@ -3,7 +3,7 @@ streamlit-aggrid
 ifcopenshell
 matplotlib
 plotly
-pandas
+pandas==1.4.4
 xlsxwriter
 geopandas
 geopy
