@@ -209,13 +209,14 @@ for df_name, df in dataframes.items():
         # st.write("See map below for location of our building products, choose product group from the sidebar")
         # Initialize the columns
         col1, col2 = st.columns(2)
+        # Initialize url_to_ifc_file as an empty string
+        url_to_ifc_file = ''
 
         with col1:
             st.subheader('Product location')             
             st.map(sel_row_for_map)
         with st.sidebar:
             st.write('To preview & download an IFC file, select a single product from the list and press download button below')
-
         if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
             Global_ID = sel_row_for_map['Global ID'].iloc[0]
             Global_ID = str(Global_ID)
@@ -231,9 +232,6 @@ for df_name, df in dataframes.items():
         with st.sidebar:
             input_file_name = Project_ID
             input_guid = None  # Initialize input_guid as None
-
-            # Initialize url_to_ifc_file as an empty string
-            url_to_ifc_file = ''
 
             # Check if the 'Global ID' column exists in the dataframe
             if 'Global ID' in sel_row_for_map.columns:
