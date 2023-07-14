@@ -40,43 +40,11 @@ def get_gcs_bucket_files(bucket_name):
     # Get the list of pickle file names
     return [blob.name for blob in blobs if blob.name.endswith('.pickle')]
 
-def download_file_from_github(url, local_path):
-    response = requests.get(url, stream=True)
-    response.raise_for_status()  # Ensure we got a valid response
-    with open(local_path, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-def get_github_repo_files(user, repo, path):
-    url = f"https://api.github.com/repos/{user}/{repo}/contents/{path}"
-    response = requests.get(url)
-    json_response = response.json()
-
-    if isinstance(json_response, dict) and 'message' in json_response:
-        st.error(f"Error getting files: {json_response['message']}")
-        return []
-
-    if isinstance(json_response, list):
-        return [file['name'] for file in json_response if file['name'].endswith('.pickle')]
-    
-    st.error("Unexpected response format.")
-    return []
-
 def download_ifc_file_from_gcs(ifc_file_name):
     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
     download_file_from_gcs('ifc_warehouse', ifc_file_name, local_path)
     # Debugging code: st.write(local_path)
     return local_path
-
-# def download_ifc_file_from_github(ifc_file_name):
-#     # GitHub repository's raw content path
-#     github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
-#     url = github_repo_raw_path + ifc_file_name
-#     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
-#     # Call the updated download_file_from_github function
-#     download_file_from_github(url, local_path)
-#     # Debugging code: st.write(local_path)
-#     return local_path
 
 def upload_to_gcs(data, bucket_name, blob_name):
     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
@@ -92,17 +60,6 @@ def upload_to_gcs(data, bucket_name, blob_name):
     # Make the blob publicly readable
     blob.make_public()
     return blob.public_url
-
-# GitHub repository details
-github_user = 'VolgardTheScientist'
-github_repo = 'DungBeetleApp'
-github_path = 'warehouse'
-
-pickle_files = get_github_repo_files(github_user, github_repo, github_path)
-
-# GitHub repository's raw content path
-github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
-path = github_repo_raw_path
 
 dataframes = {}
 
