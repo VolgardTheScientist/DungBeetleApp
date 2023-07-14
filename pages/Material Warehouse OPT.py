@@ -23,13 +23,13 @@ credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATI
 storage_client = storage.Client(credentials=credentials)
 
 
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+# @st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
     blob.download_to_filename(destination_file_name)
 
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+# @st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def get_gcs_bucket_files(bucket_name):
     # Get the bucket from the Google Cloud Storage
     bucket = storage_client.get_bucket(bucket_name)
