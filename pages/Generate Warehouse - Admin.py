@@ -6,6 +6,24 @@ from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 import numpy as np
 import io
+from google.cloud import storage
+from google.oauth2.service_account import Credentials
+
+# Create a Google Cloud Storage client
+credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+storage_client = storage.Client(credentials=credentials)
+
+def save_to_bucket(uploaded_file, blob_name):
+    """Save a file to a GCS bucket."""
+    bucket = storage_client.bucket('warehouse_processing_directory')
+    blob = bucket.blob(blob_name)
+    blob.upload_from_file(uploaded_file)
+
+def delete_from_bucket(blob_name):
+    """Delete a file from a GCS bucket."""
+    bucket = storage_client.bucket('warehouse_processing_directory')
+    blob = bucket.blob(blob_name)    
+    blob.delete()
 
 
 def get_project_geocoordinates(generated_df):
@@ -49,6 +67,10 @@ for entity in IfcEntities:
 uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
 
 if uploaded_file is not None:
+    # Save the uploaded file to the bucket
+    blob_name = uploaded_file.name
+    save_to_bucket(uploaded_file, blob_name)
+
     ifc_file_admin_upload = ifcopenshell.open(uploaded_file)
 
     # Get the project address
@@ -87,3 +109,6 @@ if uploaded_file is not None:
             file_name=f"{entity}.pickle",
             mime="application/octet-stream",
         )
+        
+    # Delete the file from the bucket after processing is done
+    delete_from_bucket(blob_name)
