@@ -211,8 +211,11 @@ def create_user_interface():
             st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
             grid_table, sel_row = AgGrid_with_display_rules(df)
             st.session_state.selected_row = sel_row  # Store the selected rows in session state
-            sel_row_for_map = pd.DataFrame(st.session_state.selected_row)
-            # st.write("See map below for location of our building products, choose product group from the sidebar")
+            if st.session_state.selected_row is not None:
+                sel_row_for_map = pd.DataFrame(st.session_state.selected_row)
+            else:
+                sel_row_for_map = pd.DataFrame()
+ 
             # Initialize the columns
             col1, col2 = st.columns(2)
 
