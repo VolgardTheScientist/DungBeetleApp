@@ -193,6 +193,7 @@ def AgGrid_with_display_rules(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
+                        reload_data=False,
                         height=400,
                         allow_unsafe_jscode=True
                         )
