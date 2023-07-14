@@ -21,8 +21,6 @@ st.title("Digital material warehouse")
 # Create a Google Cloud Storage client
 storage_client = storage.Client()
 
-# Get the pickle file from the list
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
     storage_client = storage.Client(credentials=credentials)
@@ -30,8 +28,6 @@ def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
     blob = bucket.blob(blob_name)
     blob.download_to_filename(destination_file_name)
 
-# Get a list of all .PICKLE files that contain Warehouse DataFrames
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def get_gcs_bucket_files(bucket_name):
     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
     storage_client = storage.Client(credentials=credentials)
