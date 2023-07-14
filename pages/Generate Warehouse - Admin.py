@@ -7,6 +7,9 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 import numpy as np
+import tempfile
+import base64
+
 
 
 # Define how to get geocoordinates from project's address
@@ -64,57 +67,49 @@ dataframes = {}
 for entity in IfcEntities:
     dataframes["wh_" + entity] = pd.DataFrame()
 
-# Load the list of project file names
-project_file_names_path = r"C:\Users\Piotr\dung-beetle\dung-beetle-app\warehouse\ProjectFileNames.csv"
-project_file_names = set()
-if os.path.exists(project_file_names_path):
-    with open(project_file_names_path, "r") as f:
-        project_file_names = set(line.strip() for line in f.readlines())
+uploaded_file = st.file_uploader("Upload IFC file", type="ifc")
+if uploaded_file is not None:
+    with tempfile.NamedTemporaryFile(delete=False) as fp:
+        fp.write(uploaded_file.getvalue())
+        temp_path = fp.name
+    
+    # Open the IFC file
+    ifc_file = ifcopenshell.open(temp_path)
+    # Get the project address
+    building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file)
+    # Loop through the IfcEntities and append data to the respective dataframe
+    for entity in IfcEntities:
+        warehouse_data = ifchelper.get_objects_data_by_class(ifc_file, entity)
+        df = ifchelper.create_pandas_dataframe(warehouse_data)
+        df['Building ID'] = building_ID
+        df['Project ID'] = uploaded_file.name[:-4]
+        df['Street'] = street
+        df['Post code'] = post_code
+        df['Town'] = town
+        df['Canton'] = canton
+        df['Country'] = country
+        df['Complete address'] = complete_address
+        get_project_geocoordinates(df)
+        # Remove rows with missing latitude or longitude values
+        df = df.dropna(subset=['latitude', 'longitude'])
+        dataframes["wh_" + entity] = pd.concat([dataframes["wh_" + entity], df], ignore_index=True)
 
-# Loop through the IFC files in the folder
-folder_path = r"C:\Users\Piotr\dung-beetle\dung-beetle-app\warehouse"
-for file_name in os.listdir(folder_path):
-    if file_name.endswith(".ifc"):
-        file_path = os.path.join(folder_path, file_name)
-        if file_name in project_file_names:
-            # Skip the file if it is already in the project file names list
-            continue
-        # Open the IFC file
-        ifc_file = ifcopenshell.open(file_path)
-        # Get the project address
-        building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file)
-        # Loop through the IfcEntities and append data to the respective dataframe
-        for entity in IfcEntities:
-            warehouse_data = ifchelper.get_objects_data_by_class(ifc_file, entity)
-            df = ifchelper.create_pandas_dataframe(warehouse_data)
-            df['Building ID'] = building_ID
-            df['Project ID'] = file_name[:-4]
-            df['Street'] = street
-            df['Post code'] = post_code
-            df['Town'] = town
-            df['Canton'] = canton
-            df['Country'] = country
-            df['Complete address'] = complete_address
-            get_project_geocoordinates(df)
-            # Remove rows with missing latitude or longitude values
-            df = df.dropna(subset=['latitude', 'longitude'])
-            dataframes["wh_" + entity] = pd.concat([dataframes["wh_" + entity], df], ignore_index=True)
-        # Add the file name to the project file names list
-        project_file_names.add(file_name)
-
-# Save the updated project file names list
-with open(project_file_names_path, "w") as f:
-    f.writelines(name + "\n" for name in sorted(project_file_names))
+    # Remove the temporary file
+    os.unlink(temp_path)
 
 # Print the dataframes
 for entity, df in dataframes.items():
     st.write(f"{entity}:")
     st.write(df)
     st.map(df)
-    pickle_path = os.path.join(folder_path, f"{entity}.pickle")
+    pickle_path = os.path.join(tempfile.gettempdir(), f"{entity}.pickle")
     df.to_pickle(pickle_path)
 
-# Need to avoid Applying automatic fixes for column types to make the dataframe Arrow-compatible. -> probably a dtype is incorret - run print(df.dtypes) 
-# The issue is caused by the get_project_geocoordinates(df) function
-# This line solves it: df.drop(columns=['location', 'point', 'altitude'], inplace=True)
-# One of the columns must contain an incorrect dtype
+    # Create download button for the generated pickle
+    if st.button(f'Download {entity} Dataframe as Pickle'):
+        with open(pickle_path, 'rb') as f:
+            bytes = f.read()
+            b64 = base64.b64encode(bytes).decode()
+            href = f'<a href="data:application/octet-stream;base64,{b64}" download=\'{entity}.pickle\'>\
+                Click to download {entity} dataframe pickle</a>'
+            st.markdown(href, unsafe_allow_html=True)
