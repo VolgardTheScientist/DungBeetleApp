@@ -197,6 +197,7 @@ def AgGrid_with_display_rules(df):
                         allow_unsafe_jscode=True
                         )
     sel_row = grid_table["selected_rows"]
+    st.write(sel_row)
     return grid_table, sel_row
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
