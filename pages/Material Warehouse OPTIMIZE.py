@@ -195,12 +195,13 @@ def AgGrid_with_display_rules(df):
     gd.configure_selection(selection_mode='multiple', use_checkbox=True)
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
-                        update_mode=GridUpdateMode.VALUE_CHANGED,
+                        update_mode=GridUpdateMode.SELECTION_CHANGED,
                         height=400,
                         allow_unsafe_jscode=True
                         )
-    sel_row = grid_table["selected_rows"]
-    return grid_table, sel_row
+    st.session_state.selected_row = grid_table["selected_rows"]  # Update the session state with the currently selected rows
+    return grid_table
+
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
 
