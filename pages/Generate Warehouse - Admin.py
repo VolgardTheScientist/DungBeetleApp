@@ -8,6 +8,8 @@ import numpy as np
 import io
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
+import tempfile
+import os
 
 # Create a Google Cloud Storage client
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
@@ -24,6 +26,15 @@ def delete_from_bucket(blob_name):
     bucket = storage_client.bucket('warehouse_processing_directory')
     blob = bucket.blob(blob_name)    
     blob.delete()
+
+def download_from_bucket(blob_name):
+    """Download a file from a GCS bucket."""
+    bucket = storage_client.bucket('warehouse_processing_directory')
+    blob = bucket.blob(blob_name)
+    _, temp_local_filename = tempfile.mkstemp()
+    with open(temp_local_filename, 'wb') as f:
+        storage_client.download_blob_to_file(blob, f)
+    return temp_local_filename
 
 
 def get_project_geocoordinates(generated_df):
@@ -70,8 +81,10 @@ if uploaded_file is not None:
     # Save the uploaded file to the bucket
     blob_name = uploaded_file.name
     save_to_bucket(uploaded_file, blob_name)
-
-    ifc_file_admin_upload = ifcopenshell.open(uploaded_file)
+    
+    # Download the file back from the bucket to a local file
+    local_filename = download_from_bucket(blob_name)
+    ifc_file_admin_upload = ifcopenshell.open(local_filename)
 
     # Get the project address
     building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
@@ -111,4 +124,5 @@ if uploaded_file is not None:
         )
         
     # Delete the file from the bucket after processing is done
+    os.remove(local_filename)
     delete_from_bucket(blob_name)
