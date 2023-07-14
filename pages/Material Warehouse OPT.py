@@ -264,7 +264,7 @@ def AgGrid_TESTING(df):
     gd.configure_selection(selection_mode='multiple', use_checkbox=True)
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
-                        update_mode=GridUpdateMode.MODEL_CHANGED,
+                        update_mode=GridUpdateMode.GRID_CHANGED,
                         height=400,
                         allow_unsafe_jscode=True
                         )
