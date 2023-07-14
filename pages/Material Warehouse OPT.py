@@ -19,12 +19,12 @@ st.title("Digital material warehouse")
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
 
 # Create a Google Cloud Storage client
-storage_client = storage.Client()
+credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+storage_client = storage.Client(credentials=credentials)
+
 
 @st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
-    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
-    storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
     blob.download_to_filename(destination_file_name)
