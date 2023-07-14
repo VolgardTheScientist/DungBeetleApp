@@ -21,6 +21,7 @@ st.title("Digital material warehouse")
 # Create a Google Cloud Storage client
 storage_client = storage.Client()
 
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
     storage_client = storage.Client(credentials=credentials)
@@ -265,7 +266,6 @@ def AgGrid_TESTING(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        data_return_mode=filter,
                         height=400,
                         allow_unsafe_jscode=True
                         )
