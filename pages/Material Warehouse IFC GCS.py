@@ -19,19 +19,18 @@ st.title("Digital material warehouse")
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
 
 # Create a Google Cloud Storage client
-storage_client = storage.Client()
+credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+storage_client = storage.Client(credentials=credentials)
 
+
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def download_file_from_gcs(bucket_name, blob_name, destination_file_name):
-    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
-    storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(blob_name)
     blob.download_to_filename(destination_file_name)
 
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def get_gcs_bucket_files(bucket_name):
-    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
-    storage_client = storage.Client(credentials=credentials)
-
     # Get the bucket from the Google Cloud Storage
     bucket = storage_client.get_bucket(bucket_name)
     
@@ -63,16 +62,21 @@ def get_github_repo_files(user, repo, path):
     st.error("Unexpected response format.")
     return []
 
-
-def download_ifc_file_from_github(ifc_file_name):
-    # GitHub repository's raw content path
-    github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
-    url = github_repo_raw_path + ifc_file_name
+def download_ifc_file_from_gcs(ifc_file_name):
     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
-    # Call the updated download_file_from_github function
-    download_file_from_github(url, local_path)
+    download_file_from_gcs('ifc_warehouse', ifc_file_name, local_path)
     # Debugging code: st.write(local_path)
     return local_path
+
+# def download_ifc_file_from_github(ifc_file_name):
+#     # GitHub repository's raw content path
+#     github_repo_raw_path = f'https://raw.githubusercontent.com/{github_user}/{github_repo}/main/{github_path}/'
+#     url = github_repo_raw_path + ifc_file_name
+#     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
+#     # Call the updated download_file_from_github function
+#     download_file_from_github(url, local_path)
+#     # Debugging code: st.write(local_path)
+#     return local_path
 
 def upload_to_gcs(data, bucket_name, blob_name):
     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
@@ -157,7 +161,7 @@ tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if d
 selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 
 def download_product_by_guid(input_file_name, guid):
-    src_ifc_file = ifcopenshell.open(download_ifc_file_from_github(f"{input_file_name}.ifc"))
+    src_ifc_file = ifcopenshell.open(download_ifc_file_from_gcs(f"{input_file_name}.ifc"))
 
     new_ifc_file = ifcopenshell.file(schema="IFC4")
     product = src_ifc_file.by_guid(guid)
