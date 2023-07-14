@@ -10,7 +10,6 @@ import requests
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
-import json
 
 st.set_page_config(layout="wide")
 st.title("Digital material warehouse")
