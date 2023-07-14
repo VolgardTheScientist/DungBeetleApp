@@ -193,7 +193,6 @@ def AgGrid_with_display_rules(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        reload_data=False,
                         height=400,
                         allow_unsafe_jscode=True
                         )
@@ -257,4 +256,5 @@ def create_user_interface():
 
             st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
 
+AgGrid_with_display_rules(df)
 create_user_interface()
