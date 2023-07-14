@@ -209,7 +209,8 @@ def create_user_interface():
         if tab_map.get(df_name, df_name) == selected_tab:
             st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
             grid_table, sel_row = AgGrid_with_display_rules(df)
-            sel_row_for_map = pd.DataFrame(sel_row)
+            st.session_state.selected_row = sel_row  # Store the selected rows in session state
+            sel_row_for_map = pd.DataFrame(st.session_state.selected_row)
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
@@ -257,5 +258,9 @@ def create_user_interface():
                 ifc_viewer(url)
 
             st. write('To order the products export your selection to Excel by clicking with the right mouse button on the spreadsheet. Send your selection to dung.beetle@reuse.com')
+
+# Initialize the session state
+if "selected_row" not in st.session_state:
+    st.session_state.selected_row = None
 
 create_user_interface()
