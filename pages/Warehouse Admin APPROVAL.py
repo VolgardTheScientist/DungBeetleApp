@@ -211,7 +211,7 @@ if st.button("APPROVE"):
 if uploaded_file is not None:
 
     if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
-        col1, col2 = st.beta_columns(2)  # Create two columns
+        col1, col2 = st.columns(2)  # Create two columns
         with col1:
             if st.button("REJECT"):
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
