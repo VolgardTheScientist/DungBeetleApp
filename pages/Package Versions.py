@@ -14,4 +14,4 @@ import tempfile
 st.write("Pandas: ", pd.__version__)
 st.write("Streamlit: ", st.__version__)
 st.write("Numpy: ", np.__version__)
-st.write("Tempfile: ", tempfile.__version__)
+
