@@ -12,7 +12,6 @@ import tempfile
 
 # Create a Google Cloud Storage client
 st.write("Pandas: ", pd.__version__)
-st.write("IfcOpenShell: ", ifcopenshell.__version__)
 st.write("Streamlit: ", st.__version__)
 st.write("Numpy: ", np.__version__)
 st.write("Tempfile: ", tempfile.__version__)
