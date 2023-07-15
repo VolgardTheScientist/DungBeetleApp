@@ -142,7 +142,7 @@ if uploaded_file is not None:
         ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
 
     # Print the dataframes and provide download button
-    with extracted_data_placeholder.container("Extracted data"):
+    with extracted_data_placeholder.container():
         for entity, generated_df in ifcEntity_dataframes.items():
             st.write(f"{entity}:")
             st.write(generated_df)
