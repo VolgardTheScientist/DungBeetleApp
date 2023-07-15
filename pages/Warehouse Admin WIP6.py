@@ -16,9 +16,6 @@ st.write(pd.__version__)
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
 
-# Create placeholders
-extracted_data_placeholder = st.empty()
-
 def save_to_bucket(uploaded_file, blob_name):
     """Save a file to a GCS bucket."""
     bucket = storage_client.bucket('warehouse_processing_directory')
@@ -111,6 +108,9 @@ for entity in IfcEntities:
 
 uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
 
+# Create placeholders
+extracted_data_placeholder = st.empty()
+
 if uploaded_file is not None:
     # Save the uploaded file to the bucket
     blob_name = uploaded_file.name
@@ -142,7 +142,7 @@ if uploaded_file is not None:
         ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
 
     # Print the dataframes and provide download button
-    with extracted_data_placeholder.form("Extracted data"):
+    with extracted_data_placeholder.container("Extracted data"):
         for entity, generated_df in ifcEntity_dataframes.items():
             st.write(f"{entity}:")
             st.write(generated_df)
