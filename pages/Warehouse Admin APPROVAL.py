@@ -44,6 +44,12 @@ def delete_from_bucket(blob_name):
     blob = bucket.blob(blob_name)    
     blob.delete()
 
+def delete_pickle_from_bucket(blob_name):
+    """Delete a file from a GCS bucket."""
+    bucket = storage_client.bucket('streamlit_warehouse')
+    blob = bucket.blob(blob_name)    
+    blob.delete()
+
 def download_from_bucket(blob_name):
     """Download a file from a GCS bucket."""
     bucket = storage_client.bucket('warehouse_processing_directory')
@@ -216,6 +222,8 @@ if uploaded_file is not None:
             if st.button("REJECT"):
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
+                for entity in IfcEntities:
+                    delete_pickle_from_bucket(f"wh_{entity}.pickle")
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
         with col2:
