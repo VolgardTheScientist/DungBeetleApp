@@ -106,9 +106,13 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+if 'uploaded_file' not in st.session_state:
+    st.session_state.uploaded_file = None
+
+uploaded_file = st.file_uploader("Choose a file", key="file_uploader")
 
 if uploaded_file is not None:
+    st.session_state.uploaded_file = uploaded_file
     # Save the uploaded file to the bucket
     blob_name = uploaded_file.name
     save_to_bucket(uploaded_file, blob_name)
@@ -159,7 +163,7 @@ if uploaded_file is not None:
         )
 
 if uploaded_file is not None:
-
+    st.session_state.uploaded_file = uploaded_file
     if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
         col1, col2 = st.columns(2)  # Create two columns
         with col1:
@@ -167,7 +171,7 @@ if uploaded_file is not None:
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
                 delete_pickles("streamlit_warehouse")
-                uploaded_file = None
+                st.session_state.uploaded_file = None
                 st.write("SUCCESS!")
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
@@ -180,7 +184,9 @@ if uploaded_file is not None:
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                    uploaded_file = None
+                    st.session_state.uploaded_file = None
                     st.write("SUCCESS!")
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
+# Then when you want to access the uploaded file
+uploaded_file = st.session_state.uploaded_file
