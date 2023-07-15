@@ -18,6 +18,20 @@ st.write(pd.__version__)
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
 
+# # Create a Google Cloud Storage client
+# # Check if st.secrets is available (i.e., the app is being run on Streamlit Cloud)
+# # Try to access st.secrets (this will fail if running locally without a secrets.toml file)
+# try:
+#     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+# except FileNotFoundError:
+#     # If running locally, load the credentials from a local file
+#     credential_path = os.path.join('./keys', 'able-analyst-392315-77bb94fe797e.json')
+#     with open(credential_path, 'r') as f:
+#         creds_info = json.load(f)
+#     credentials = Credentials.from_service_account_info(creds_info)
+# 
+# storage_client = storage.Client(credentials=credentials)
+
 def save_to_bucket(uploaded_file, blob_name):
     """Save a file to a GCS bucket."""
     bucket = storage_client.bucket('warehouse_processing_directory')
@@ -77,27 +91,44 @@ def move_file_between_buckets(source_bucket_name, destination_bucket_name, blob_
     destination_bucket = storage_client.bucket(destination_bucket_name)
     blob = source_bucket.blob(blob_name)
     
-    try:
-        new_blob = destination_bucket.copy_blob(blob, source_bucket, blob_name)
-        st.write(vars(new_blob))
-        # Check if blob has been copied correctly
-        copied_blob = destination_bucket.get_blob(blob_name)
-        st.write(f"Copied blob: {copied_blob}")
-        if new_blob.exists():
-            st.write(f"Blob {blob_name} copied to {destination_bucket_name}.")
-        else:
-            st.write(f"Failed to copy blob {blob_name} to {destination_bucket_name}.")
-    except Exception as e:
-        st.write(f"An error occurred while copying blob {blob_name}: {e}")
+    # Create new blob
+    new_blob = destination_bucket.blob(blob.name)
+    
+    # Rewrite the source blob to the destination blob
+    token = None
+    while True:
+        token, _, _ = new_blob.rewrite(blob, token=token)
+        if token is None:
+            break
 
-    try:
-        blob.delete()
-        if not blob.exists():
-            st.write(f"Blob {blob_name} deleted from {source_bucket_name}.")
-        else:
-            st.write(f"Failed to delete blob {blob_name} from {source_bucket_name}.")
-    except Exception as e:
-        st.write(f"An error occurred while deleting blob {blob_name}: {e}")
+    # Delete the original blob
+    blob.delete()
+
+
+
+# def move_file_between_buckets(source_bucket_name, destination_bucket_name, blob_name):
+#     """Moves a file from one GCS bucket to another."""
+#     source_bucket = storage_client.bucket(source_bucket_name)
+#     destination_bucket = storage_client.bucket(destination_bucket_name)
+#     blob = source_bucket.blob(blob_name)
+#     
+#     # Create new blob
+#     new_blob = destination_bucket.blob(blob.name)
+#     
+#     # Rewrite the source blob to the destination blob
+#     token = None
+#     while True:
+#         token, bytes_rewritten, total_bytes = new_blob.rewrite(blob, token=token)
+#         if token is None:
+#             break
+#     
+#     st.write(f"Copied blob: {new_blob.name}")
+#     st.write(f"Total bytes: {total_bytes}")
+#     st.write(f"Bytes rewritten: {bytes_rewritten}")
+# 
+#     blob.delete()
+#     st.write(f"Deleted blob: {blob.name} from {source_bucket_name}")
+
 
 
 def save_pickle_to_bucket(pickle_data, blob_name):
