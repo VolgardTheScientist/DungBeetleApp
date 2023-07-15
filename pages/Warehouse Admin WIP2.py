@@ -190,3 +190,6 @@ if uploaded_file is not None:
 
 # Then when you want to access the uploaded file
 uploaded_file = st.session_state.uploaded_file
+
+if 'uploaded_file' in st.session_state:
+    st.write(f"Uploaded file: {st.session_state['uploaded_file']}")
