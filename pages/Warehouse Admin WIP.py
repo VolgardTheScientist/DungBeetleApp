@@ -12,20 +12,6 @@ import tempfile
 
 st.write(pd.__version__)
 
-# Initialize session state keys
-if "message" not in st.session_state:
-    st.session_state["message"] = ""
-    
-if "uploaded_file" not in st.session_state:
-    st.session_state["uploaded_file"] = None
-
-# Add a new state to indicate if any button was clicked
-if "button_clicked" not in st.session_state:
-    st.session_state["button_clicked"] = False
-
-# File uploader
-st.session_state["uploaded_file"] = st.file_uploader("Upload an IFC file", type=["ifc"], key=1)
-
 # Create a Google Cloud Storage client
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
@@ -120,11 +106,17 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-if st.session_state["uploaded_file"] is not None and not st.session_state["button_clicked"]:
+if 'uploaded_file' not in st.session_state:
+    st.session_state.uploaded_file = None
+
+uploaded_file = st.file_uploader("Choose a file", key="uploaded_file")
+
+if uploaded_file is not None:
+    st.session_state.uploaded_file = uploaded_file
     # Save the uploaded file to the bucket
-    blob_name = st.session_state.uploaded_file.name
-    save_to_bucket(st.session_state.uploaded_file, blob_name)
-    st.session_state.uploaded_file.seek(0)
+    blob_name = uploaded_file.name
+    save_to_bucket(uploaded_file, blob_name)
+    uploaded_file.seek(0)  # Add this line
     
     # Download the file back from the bucket to a local file
     local_filename = download_from_bucket(blob_name)
@@ -138,7 +130,7 @@ if st.session_state["uploaded_file"] is not None and not st.session_state["butto
         warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
         generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
         generated_df['Building ID'] = building_ID
-        generated_df['Project ID'] = st.session_state["uploaded_file"].name[:-4]
+        generated_df['Project ID'] = uploaded_file.name[:-4]
         generated_df['Street'] = street
         generated_df['Post code'] = post_code
         generated_df['Town'] = town
@@ -169,12 +161,9 @@ if st.session_state["uploaded_file"] is not None and not st.session_state["butto
             file_name=f"{entity}.pickle",
             mime="application/octet-stream",
         )
-elif st.session_state["button_clicked"]:
-    st.session_state["button_clicked"] = False
-    st.session_state.save()
 
-if st.session_state["uploaded_file"] is not None:
-
+if uploaded_file is not None:
+    st.session_state.uploaded_file = uploaded_file
     if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
         col1, col2 = st.columns(2)  # Create two columns
         with col1:
@@ -182,10 +171,8 @@ if st.session_state["uploaded_file"] is not None:
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
                 delete_pickles("streamlit_warehouse")
-                st.session_state.message = "REJECT procedure successfully completed"
-                st.session_state.uploaded_file = None  # Clear the uploaded file
-                st.session_state.button_clicked = True  # Set button_clicked to True
-                st.session_state.save()  # Save the session state
+                st.session_state.uploaded_file = None
+                st.write("SUCCESS!")
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
         with col2:
@@ -197,14 +184,12 @@ if st.session_state["uploaded_file"] is not None:
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                st.session_state.message = "APPROVE procedure successfully completed"
-                st.session_state.uploaded_file = None  # Clear the uploaded file
-                st.session_state.button_clicked = True  # Set button_clicked to True
-                st.session_state.save()  # Save the session state
+                    st.session_state.uploaded_file = None
+                    st.write("SUCCESS!")
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
-# Display message
-if st.session_state.message != "":
-    st.write(st.session_state.message)
-    st.session_state.message = ""  # Reset the message after displaying it
+# Then when you want to access the uploaded file
+uploaded_file = st.session_state.uploaded_file
 
+if 'uploaded_file' in st.session_state:
+    st.write(f"Uploaded file: {st.session_state['uploaded_file']}")
