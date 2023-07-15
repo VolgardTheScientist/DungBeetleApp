@@ -195,18 +195,18 @@ if uploaded_file is not None:
             mime="application/octet-stream",
         )
 
-if st.button("REJECT"):
-    # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
-    delete_from_bucket(blob_name)
-
-if st.button("APPROVE"):
-    # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
-    move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
-    for entity, generated_df in ifcEntity_dataframes.items():
-        pickle_data = io.BytesIO()
-        generated_df.to_pickle(pickle_data)
-        pickle_data.seek(0)
-        save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+# if st.button("REJECT"):
+#     # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
+#     delete_from_bucket(blob_name)
+# 
+# if st.button("APPROVE"):
+#     # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
+#     move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
+#     for entity, generated_df in ifcEntity_dataframes.items():
+#         pickle_data = io.BytesIO()
+#         generated_df.to_pickle(pickle_data)
+#         pickle_data.seek(0)
+#         save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
 
 if uploaded_file is not None:
 
