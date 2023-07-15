@@ -170,6 +170,7 @@ if uploaded_file and submitted is not None:
                     # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                     delete_from_bucket(blob_name)
                     delete_pickles("streamlit_warehouse")
+                    submitted = st.form_submit_button()                    
                 st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
             with col2:
@@ -181,5 +182,6 @@ if uploaded_file and submitted is not None:
                         generated_df.to_pickle(pickle_data)
                         pickle_data.seek(0)
                         save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+                        submitted = st.form_submit_button()     
                 st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
