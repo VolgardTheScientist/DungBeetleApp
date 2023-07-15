@@ -9,15 +9,28 @@ import io
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import tempfile
+import os
+import json
 
 st.write(pd.__version__)
-
-if "message" not in st.session_state:
-    st.session_state["message"] = ""
 
 # Create a Google Cloud Storage client
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
+
+# # Create a Google Cloud Storage client
+# # Check if st.secrets is available (i.e., the app is being run on Streamlit Cloud)
+# # Try to access st.secrets (this will fail if running locally without a secrets.toml file)
+# try:
+#     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+# except FileNotFoundError:
+#     # If running locally, load the credentials from a local file
+#     credential_path = os.path.join('./keys', 'able-analyst-392315-77bb94fe797e.json')
+#     with open(credential_path, 'r') as f:
+#         creds_info = json.load(f)
+#     credentials = Credentials.from_service_account_info(creds_info)
+# 
+# storage_client = storage.Client(credentials=credentials)
 
 def save_to_bucket(uploaded_file, blob_name):
     """Save a file to a GCS bucket."""
@@ -97,6 +110,33 @@ def move_file_between_buckets(source_bucket_name, destination_bucket_name, blob_
     # Delete the original blob
     blob.delete()
 
+
+
+# def move_file_between_buckets(source_bucket_name, destination_bucket_name, blob_name):
+#     """Moves a file from one GCS bucket to another."""
+#     source_bucket = storage_client.bucket(source_bucket_name)
+#     destination_bucket = storage_client.bucket(destination_bucket_name)
+#     blob = source_bucket.blob(blob_name)
+#     
+#     # Create new blob
+#     new_blob = destination_bucket.blob(blob.name)
+#     
+#     # Rewrite the source blob to the destination blob
+#     token = None
+#     while True:
+#         token, bytes_rewritten, total_bytes = new_blob.rewrite(blob, token=token)
+#         if token is None:
+#             break
+#     
+#     st.write(f"Copied blob: {new_blob.name}")
+#     st.write(f"Total bytes: {total_bytes}")
+#     st.write(f"Bytes rewritten: {bytes_rewritten}")
+# 
+#     blob.delete()
+#     st.write(f"Deleted blob: {blob.name} from {source_bucket_name}")
+
+
+
 def save_pickle_to_bucket(pickle_data, blob_name):
     """Save a pickle file to a GCS bucket."""
     bucket = storage_client.bucket('streamlit_warehouse')
@@ -161,29 +201,38 @@ if uploaded_file is not None:
             mime="application/octet-stream",
         )
 
-if uploaded_file is not None:
-    if st.session_state.message != "":
-        st.write(st.session_state.message)
-    else:
-        if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
-            col1, col2 = st.columns(2)  # Create two columns
-            with col1:
-                if st.button("REJECT"):
-                    # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
-                    delete_from_bucket(blob_name)
-                    delete_pickles("streamlit_warehouse")
-                    st.session_state.message = "REJECT procedure successfully completed"
-                st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
+# if st.button("REJECT"):
+#     # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
+#     delete_from_bucket(blob_name)
+# 
+# if st.button("APPROVE"):
+#     # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
+#     move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
+#     for entity, generated_df in ifcEntity_dataframes.items():
+#         pickle_data = io.BytesIO()
+#         generated_df.to_pickle(pickle_data)
+#         pickle_data.seek(0)
+#         save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
 
-            with col2:
-                if st.button("APPROVE"):
-                    # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
-                    move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
-                    for entity, generated_df in ifcEntity_dataframes.items():
-                        pickle_data = io.BytesIO()
-                        generated_df.to_pickle(pickle_data)
-                        pickle_data.seek(0)
-                        save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                    st.session_state.message = "APPROVE procedure successfully completed"
-                st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
+if uploaded_file is not None:
+
+    if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
+        col1, col2 = st.columns(2)  # Create two columns
+        with col1:
+            if st.button("REJECT"):
+                # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
+                delete_from_bucket(blob_name)
+                delete_pickles("streamlit_warehouse")
+            st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
+
+        with col2:
+            if st.button("APPROVE"):
+                # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
+                move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
+                for entity, generated_df in ifcEntity_dataframes.items():
+                    pickle_data = io.BytesIO()
+                    generated_df.to_pickle(pickle_data)
+                    pickle_data.seek(0)
+                    save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+            st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
