@@ -19,6 +19,10 @@ if "message" not in st.session_state:
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 
+# Add a new state to indicate if any button was clicked
+if "button_clicked" not in st.session_state:
+    st.session_state["button_clicked"] = False
+
 # File uploader
 st.session_state["uploaded_file"] = st.file_uploader("Upload an IFC file", type=["ifc"], key=1)
 
@@ -116,7 +120,7 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-if st.session_state["uploaded_file"] is not None:
+if st.session_state["uploaded_file"] is not None and not st.session_state["button_clicked"]:
     # Save the uploaded file to the bucket
     blob_name = st.session_state.uploaded_file.name
     save_to_bucket(st.session_state.uploaded_file, blob_name)
@@ -134,7 +138,7 @@ if st.session_state["uploaded_file"] is not None:
         warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
         generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
         generated_df['Building ID'] = building_ID
-        generated_df['Project ID'] = uploaded_file.name[:-4]
+        generated_df['Project ID'] = st.session_state["uploaded_file"].name[:-4]
         generated_df['Street'] = street
         generated_df['Post code'] = post_code
         generated_df['Town'] = town
@@ -165,6 +169,9 @@ if st.session_state["uploaded_file"] is not None:
             file_name=f"{entity}.pickle",
             mime="application/octet-stream",
         )
+elif st.session_state["button_clicked"]:
+    st.session_state["button_clicked"] = False
+    st.session_state.save()
 
 if st.session_state["uploaded_file"] is not None:
 
@@ -177,6 +184,7 @@ if st.session_state["uploaded_file"] is not None:
                 delete_pickles("streamlit_warehouse")
                 st.session_state.message = "REJECT procedure successfully completed"
                 st.session_state.uploaded_file = None  # Clear the uploaded file
+                st.session_state.button_clicked = True  # Set button_clicked to True
                 st.session_state.save()  # Save the session state
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
@@ -191,6 +199,7 @@ if st.session_state["uploaded_file"] is not None:
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
                 st.session_state.message = "APPROVE procedure successfully completed"
                 st.session_state.uploaded_file = None  # Clear the uploaded file
+                st.session_state.button_clicked = True  # Set button_clicked to True
                 st.session_state.save()  # Save the session state
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
