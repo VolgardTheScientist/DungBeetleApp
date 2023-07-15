@@ -17,8 +17,7 @@ credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATI
 storage_client = storage.Client(credentials=credentials)
 
 # Create placeholders
-dataframe_placeholder = st.empty()
-map_placeholder = st.empty()
+uploaded_file_placeholder = st.empty()
 
 def save_to_bucket(uploaded_file, blob_name):
     """Save a file to a GCS bucket."""
@@ -110,7 +109,7 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+uploaded_file = uploaded_file_placeholder.file_uploader("Upload an IFC file", type=["ifc"], key="file_uploader")
 
 if uploaded_file is not None:
     # Save the uploaded file to the bucket
@@ -144,9 +143,9 @@ if uploaded_file is not None:
 
     # Print the dataframes and provide download button
     for entity, generated_df in ifcEntity_dataframes.items():
-        dataframe_placeholder.write(f"{entity}:")
-        dataframe_placeholder.write(generated_df)
-        map_placeholder.map(generated_df)
+        st.write(f"{entity}:")
+        st.write(generated_df)
+        st.map(generated_df)
         
         pickle_data = io.BytesIO()
         generated_df.to_pickle(pickle_data)
@@ -171,8 +170,7 @@ if uploaded_file is not None:
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
                 delete_pickles("streamlit_warehouse")
-                dataframe_placeholder.clear()
-                map_placeholder.clear()
+                uploaded_file_placeholder.empty()
                 st.write("SUCCESS!")
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
@@ -185,8 +183,7 @@ if uploaded_file is not None:
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                dataframe_placeholder.clear()
-                map_placeholder.clear()
-                st.write("SUCCESS!")
+                    uploaded_file_placeholder.empty()
+                    st.write("SUCCESS!")
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
