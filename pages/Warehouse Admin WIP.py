@@ -12,8 +12,15 @@ import tempfile
 
 st.write(pd.__version__)
 
+# Initialize session state keys
 if "message" not in st.session_state:
     st.session_state["message"] = ""
+    
+if "uploaded_file" not in st.session_state:
+    st.session_state["uploaded_file"] = None
+
+# File uploader
+st.session_state["uploaded_file"] = st.file_uploader("Upload an IFC file", type=["ifc"], key=1)
 
 # Create a Google Cloud Storage client
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
@@ -109,13 +116,11 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
-
-if uploaded_file is not None:
+if st.session_state["uploaded_file"] is not None:
     # Save the uploaded file to the bucket
-    blob_name = uploaded_file.name
-    save_to_bucket(uploaded_file, blob_name)
-    uploaded_file.seek(0)  # Add this line
+    blob_name = st.session_state.uploaded_file.name
+    save_to_bucket(st.session_state.uploaded_file, blob_name)
+    st.session_state.uploaded_file.seek(0)
     
     # Download the file back from the bucket to a local file
     local_filename = download_from_bucket(blob_name)
@@ -161,29 +166,36 @@ if uploaded_file is not None:
             mime="application/octet-stream",
         )
 
-if uploaded_file is not None:
-    if st.session_state.message != "":
-        st.write(st.session_state.message)
-    else:
-        if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
-            col1, col2 = st.columns(2)  # Create two columns
-            with col1:
-                if st.button("REJECT"):
-                    # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
-                    delete_from_bucket(blob_name)
-                    delete_pickles("streamlit_warehouse")
-                    st.session_state.message = "REJECT procedure successfully completed"
-                st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
+if st.session_state["uploaded_file"] is not None:
 
-            with col2:
-                if st.button("APPROVE"):
-                    # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
-                    move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
-                    for entity, generated_df in ifcEntity_dataframes.items():
-                        pickle_data = io.BytesIO()
-                        generated_df.to_pickle(pickle_data)
-                        pickle_data.seek(0)
-                        save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                    st.session_state.message = "APPROVE procedure successfully completed"
-                st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
+    if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
+        col1, col2 = st.columns(2)  # Create two columns
+        with col1:
+            if st.button("REJECT"):
+                # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
+                delete_from_bucket(blob_name)
+                delete_pickles("streamlit_warehouse")
+                st.session_state.message = "REJECT procedure successfully completed"
+                st.session_state.uploaded_file = None  # Clear the uploaded file
+                st.session_state.save()  # Save the session state
+            st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
+
+        with col2:
+            if st.button("APPROVE"):
+                # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
+                move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
+                for entity, generated_df in ifcEntity_dataframes.items():
+                    pickle_data = io.BytesIO()
+                    generated_df.to_pickle(pickle_data)
+                    pickle_data.seek(0)
+                    save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+                st.session_state.message = "APPROVE procedure successfully completed"
+                st.session_state.uploaded_file = None  # Clear the uploaded file
+                st.session_state.save()  # Save the session state
+            st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
+
+# Display message
+if st.session_state.message != "":
+    st.write(st.session_state.message)
+    st.session_state.message = ""  # Reset the message after displaying it
 
