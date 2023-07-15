@@ -15,18 +15,22 @@ import json
 st.write(pd.__version__)
 
 # Create a Google Cloud Storage client
-# Check if st.secrets is available (i.e., the app is being run on Streamlit Cloud)
-# Try to access st.secrets (this will fail if running locally without a secrets.toml file)
-try:
-    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
-except FileNotFoundError:
-    # If running locally, load the credentials from a local file
-    credential_path = os.path.join('./keys', 'able-analyst-392315-77bb94fe797e.json')
-    with open(credential_path, 'r') as f:
-        creds_info = json.load(f)
-    credentials = Credentials.from_service_account_info(creds_info)
-
+credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
+
+# # Create a Google Cloud Storage client
+# # Check if st.secrets is available (i.e., the app is being run on Streamlit Cloud)
+# # Try to access st.secrets (this will fail if running locally without a secrets.toml file)
+# try:
+#     credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+# except FileNotFoundError:
+#     # If running locally, load the credentials from a local file
+#     credential_path = os.path.join('./keys', 'able-analyst-392315-77bb94fe797e.json')
+#     with open(credential_path, 'r') as f:
+#         creds_info = json.load(f)
+#     credentials = Credentials.from_service_account_info(creds_info)
+# 
+# storage_client = storage.Client(credentials=credentials)
 
 
 def save_to_bucket(uploaded_file, blob_name):
