@@ -10,6 +10,16 @@ from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import tempfile
 
+# ========== Page title and welcome message, page config ==========
+
+st.set_page_config(layout="wide")
+st.title("Warehouse Admin")
+st.markdown("Welcome to the Dung Beetle digital material warehouse administration page."
+    "Here you can check the quality of IFC files and if satisifed with their quality, merge them with the main warehouse DataFrame."
+    "Please note that the at this time only IFC 4 files are being accepted and that full project address data has to be provided in the file."
+    "All files not meeting these criteria will be automatically rejected."
+    "Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.")
+
 # ========== Create a Google Cloud Storage client ==========
 
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
