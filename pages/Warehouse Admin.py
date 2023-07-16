@@ -16,7 +16,7 @@ st.set_page_config(layout="centered")
 st.title("Warehouse Admin")
 st.markdown("""<p>Welcome to the Dung Beetle digital material warehouse administration page.</p>
     <p>Here you can check the quality of IFC files and if satisifed, merge them with the main warehouse DataFrame.</p>
-    <p>Please note that at this time only **IFC 4** files are being accepted and that **full project address** data has to be provided in the file. 
+    <p>Please note that at this time only <strong>IFC 4</strong> files are being accepted and that <strong>full project address</strong> data has to be provided in the file. 
     All files not meeting these criteria will be automatically rejected.</p>
     <p>Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.</p>""", unsafe_allow_html=True)
 st.write("")
