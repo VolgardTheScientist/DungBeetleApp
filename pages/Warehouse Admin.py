@@ -12,7 +12,6 @@ import tempfile
 from datetime import datetime
 from io import BytesIO
 
-
 # ========== Page title and welcome message, page config ==========
 
 st.set_page_config(layout="centered")
