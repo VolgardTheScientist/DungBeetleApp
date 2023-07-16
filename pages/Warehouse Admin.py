@@ -9,6 +9,7 @@ import io
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import tempfile
+from datetime import datetime
 
 # ========== Page title and welcome message, page config ==========
 
@@ -112,6 +113,30 @@ def save_pickle_to_bucket(pickle_data, blob_name):
     bucket = storage_client.bucket('pickles_processing_directory')
     blob = bucket.blob(blob_name)
     blob.upload_from_file(pickle_data)
+
+def backup_pickles():
+    """Backup all pickle files from 'pickle_warehouse' to 'pickles_backup' with current day and hour in the name"""
+    # Define the buckets
+    source_bucket = storage_client.bucket('pickle_warehouse')
+    destination_bucket = storage_client.bucket('pickles_backup')
+    
+    # Get the current day and hour
+    now = datetime.now()
+    day_hour = now.strftime("%Y%m%d_%H%M")
+    
+    # Get all blobs in the source bucket
+    blobs = source_bucket.list_blobs()
+
+    for blob in blobs:
+        if blob.name.endswith('.pickle'):
+            # Create a new blob name
+            new_blob_name = f"{blob.name[:-7]}_{day_hour}.pickle"
+            
+            # Create new blob
+            new_blob = destination_bucket.blob(new_blob_name)
+            
+            # Copy the blob to the new blob
+            new_blob.rewrite(blob)
 
 # ========== Session Key Code & File Uploader ==========
 
@@ -219,6 +244,7 @@ if uploaded_file is not None:
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
+                    backup_pickles()
                     st.success("SUCCESS!")
                     st.session_state["file_uploader_key"] += 1
                     st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
