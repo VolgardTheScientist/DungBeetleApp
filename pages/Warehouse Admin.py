@@ -150,7 +150,7 @@ def merge_dataframes():
     for temp_blob in processing_blobs:
         if temp_blob.name.startswith("temp_") and temp_blob.name.endswith(".pickle"):
             # Load the temp dataframe
-            temp_df = pd.read_pickle(temp_blob.download_as_text())
+            temp_df = pd.read_pickle(BytesIO(temp_blob.download_as_bytes()))
 
             # Get the entity name
             entity = temp_blob.name[5:-7]  # Removing "temp_" and ".pickle"
@@ -160,11 +160,13 @@ def merge_dataframes():
             
             if wh_blob.exists():
                 # If exists, load the warehouse dataframe and merge with the temp dataframe
-                wh_df = pd.read_pickle(wh_blob.download_as_text())
+                wh_df = pd.read_pickle(BytesIO(wh_blob.download_as_bytes()))
                 merged_df = pd.concat([wh_df, temp_df])
                 
                 # Save the merged dataframe back to the "wh_" blob
-                wh_blob.upload_from_string(merged_df.to_pickle())
+                buffer = BytesIO()
+                merged_df.to_pickle(buffer)
+                wh_blob.upload_from_string(buffer.getvalue())
             else:
                 # If not exists, rename the temp blob to "wh_" and move to the warehouse bucket
                 new_blob = warehouse_bucket.blob(f"wh_{entity}.pickle")
@@ -172,6 +174,7 @@ def merge_dataframes():
 
             # Delete the temp blob after processing
             temp_blob.delete()
+
 
 # ========== Session Key Code & File Uploader ==========
 
