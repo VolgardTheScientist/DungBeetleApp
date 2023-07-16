@@ -144,8 +144,8 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
         # Loop through the IfcEntities and append data to the respective dataframe
         for entity in IfcEntities:
             warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
-            st.write(warehouse_data)
-            st.text(type(warehouse_data))
+            # DEBUG: st.write(warehouse_data)
+            # DEBUG: st.text(type(warehouse_data))
             generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
             st.write(generated_df)
             generated_df['Building ID'] = building_ID
@@ -158,11 +158,11 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             generated_df['Complete address'] = complete_address
             get_project_geocoordinates(generated_df)
             # Remove rows with missing latitude or longitude values
-            st.write("Test obtaining geocoordinates")
-            st.write(generated_df)
+            # DEBUG: st.write("Test obtaining geocoordinates")
+            # DEBUG: st.write(generated_df)
             generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
-            st.write("Test removing rowd with missing latitiude and longitude")
-            st.write(generated_df)
+            # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
+            # DEBUG: st.write(generated_df)
             ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
         # Print the dataframes and provide download button
         for entity, generated_df in ifcEntity_dataframes.items():
