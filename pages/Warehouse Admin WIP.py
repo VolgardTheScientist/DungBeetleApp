@@ -120,7 +120,7 @@ uploaded_file = st.file_uploader(
     key=st.session_state["file_uploader_key"])
 
 if uploaded_file:
-    st.session_state["uploaded_files"] = uploaded_file
+    st.session_state["uploaded_file"] = uploaded_file
 
 # ========== Here starts the DataFrame Generator ==========
 
@@ -204,4 +204,4 @@ if uploaded_file is not None:
                     st.experimental_rerun()
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
-st.write("Uploaded files:", st.session_state["uploaded_files"])
+st.write("Uploaded file:", st.session_state["uploaded_file"])
