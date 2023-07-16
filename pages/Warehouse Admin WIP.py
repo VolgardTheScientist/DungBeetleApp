@@ -100,13 +100,6 @@ def save_pickle_to_bucket(pickle_data, blob_name):
     blob = bucket.blob(blob_name)
     blob.upload_from_file(pickle_data)
 
-if st.session_state["rerun_page"] is not "no":
-    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
-    
-    ifcEntity_dataframes = {}
-    for entity in IfcEntities:
-        ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
-
 # ========== Here starts Session Key Code ==========
 
 if "file_uploader_key" not in st.session_state:
@@ -114,6 +107,9 @@ if "file_uploader_key" not in st.session_state:
 
 if "uploaded_ifc_file" not in st.session_state:
     st.session_state["uploaded_ifc_file"] = []
+
+if "rerun_page" not in st.session_state:
+    st.session_state["rerun_page"] = "yes"
 
 uploaded_file = st.file_uploader(
     "Upload an IFC file", 
@@ -124,6 +120,14 @@ if uploaded_file:
     st.session_state["uploaded_ifc_file"] = uploaded_file
 
 # ========== Here starts the DataFrame Generator ==========
+
+if st.session_state["rerun_page"] is not "no":
+    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
+    
+    ifcEntity_dataframes = {}
+    for entity in IfcEntities:
+        ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
+
 
 if st.session_state["rerun_page"] is not "no":
     if uploaded_file is not None:
