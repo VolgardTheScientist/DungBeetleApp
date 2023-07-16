@@ -98,7 +98,7 @@ def move_file_between_buckets(source_bucket_name, destination_bucket_name, blob_
 
 def save_pickle_to_bucket(pickle_data, blob_name):
     """Save a pickle file to a GCS bucket."""
-    bucket = storage_client.bucket('pickles_processing_directory')
+    bucket = storage_client.bucket('streamlit_warehouse')
     blob = bucket.blob(blob_name)
     blob.upload_from_file(pickle_data)
 
@@ -191,7 +191,7 @@ if uploaded_file is not None:
             if st.button("REJECT"):
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
-                delete_pickles("pickles_processing_directory")
+                delete_pickles("streamlit_warehouse")
                 st.success("SUCCESS!")
                 st.session_state["file_uploader_key"] += 1
                 st.session_state["uploaded_ifc_file"] = "You have rejected the merge with the main GCS DataFrame, please reload this page to restart the process."
@@ -201,7 +201,7 @@ if uploaded_file is not None:
 
         with col2:
             if st.button("APPROVE"):
-                # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'pickles_processing_directory'
+                # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'streamlit_warehouse'
                 move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
                 for entity, generated_df in ifcEntity_dataframes.items():
                     pickle_data = io.BytesIO()
