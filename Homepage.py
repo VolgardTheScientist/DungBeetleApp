@@ -78,7 +78,7 @@ def main():
         )
 
     with col2:
-        st.image('Dung_Beetle.png')
+        st.image('dung_beetle.jpg')
     
     uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
 
