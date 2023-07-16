@@ -14,8 +14,6 @@ import pkg_resources
 # ========== Add versions variable ==========
 
 ifcPenShellVersion = pkg_resources.get_distribution("ifcopenshell").version
-st.write(ifcPenShellVersion)
-
 
 # ========== Page title and welcome message, page config ==========
 
