@@ -127,7 +127,7 @@ IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcW
 
 ifcEntity_dataframes = {}
 for entity in IfcEntities:
-    ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
+    ifcEntity_dataframes["temp_" + entity] = pd.DataFrame()
 
 # if st.session_state["rerun_page"] is not "no":
 if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
@@ -177,7 +177,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             st.download_button(
                 label=f"Download {entity}.pickle",
                 data=pickle_data,
-                file_name=f"{entity}.pickle",
+                file_name=f"temp_{entity}.pickle",
                 mime="application/octet-stream",
             )
 
@@ -207,7 +207,7 @@ if uploaded_file is not None:
                     pickle_data = io.BytesIO()
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
-                    save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+                    save_pickle_to_bucket(pickle_data, f"temp_{entity}.pickle")
                     st.success("SUCCESS!")
                     st.session_state["file_uploader_key"] += 1
                     st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
