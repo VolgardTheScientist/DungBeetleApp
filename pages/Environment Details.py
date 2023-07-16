@@ -10,7 +10,11 @@ from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import tempfile
 
-# Create a Google Cloud Storage client
+# ========== Page title and welcome message, page config ==========
+
+st.set_page_config(layout="centered")
+st.title("Environment Details")
+st.write("")
 st.write("Pandas: ", pd.__version__)
 st.write("Streamlit: ", st.__version__)
 st.write("Numpy: ", np.__version__)

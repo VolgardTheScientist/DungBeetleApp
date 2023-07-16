@@ -19,7 +19,7 @@ def change_project_name():
 def main():      
     st.set_page_config(
         layout= "wide",
-        page_title="IFC Stream",
+        page_title="Dung Beetle - Re-Use Building Materials",
     )
 
     # Add App logo
@@ -54,23 +54,32 @@ def main():
 
     # st.image('Dung_Beetle.png')
     st.title("Re-use building material")
-    st.markdown(
-        """
-        Transition from linear (take, make, dispose) towards circular economy (make, use, recycle) is a fundamental prerequisite for achieving a sustainable growth and limiting global warming.
-    Digitalization and management of material flows play a central role in the circular economy. Construction and demolition waste is particularly important, as it is the largest waste stream in many developed countries,
-    e.g. in the EU, USA, Australia, China and Switzerland. In the world of digital transformation, a BIM model is a digital representation of a physical asset. Such virtual material banks hold enormous potential for
-    innovation in sustainable design, (de-)construction, finance and investment related to the built environment.
-    Dung Beetle is a research project exploring possibilities of using BIM models to analyse deconstruction potential of buildings and to use BIM data as a basis for digital material banks. 
+    
+    # Create columns
+    col1, col2 = st.columns(2)  # Create two columns
 
-    Would you like to find out more or find out how much re-use potential does your own building project have? Get in touch with us: piotr.piotrowski[at]uni.li, or just go ahead and upload your IFC4 MVD: Reference View file 
-    and check the results. 
-    """)
+    with col1:
+        st.markdown(
+            """
+            Transition from linear (take, make, dispose) towards circular economy (make, use, recycle) is a fundamental prerequisite for achieving a sustainable growth and limiting global warming.
+        Digitalization and management of material flows play a central role in the circular economy. Construction and demolition waste is particularly important, as it is the largest waste stream in many developed countries,
+        e.g. in the EU, USA, Australia, China and Switzerland. In the world of digital transformation, a BIM model is a digital representation of a physical asset. Such virtual material banks hold enormous potential for
+        innovation in sustainable design, (de-)construction, finance and investment related to the built environment.
+        Dung Beetle is a research project exploring possibilities of using BIM models to analyse deconstruction potential of buildings and to use BIM data as a basis for digital material banks. 
 
-    st.markdown(
-        """
-        ### Click on Browse file to begin (only IFC 4 Reference View files)
-        """
-    )
+        Would you like to find out more or find out how much re-use potential does your own building project have? Get in touch with us: piotr.piotrowski[at]uni.li, or just go ahead and upload your IFC4 MVD: Reference View file 
+        and check the results. 
+        """)
+
+        st.markdown(
+            """
+            ### Click on Browse file to begin (only IFC 4 Reference View files)
+            """
+        )
+
+    with col2:
+        st.image('Dung_Beetle.png')
+    
     uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
 
     if uploaded_file:
@@ -102,7 +111,7 @@ def main():
         st.sidebar.write ("Your project is ready to be reviewed. Reduce, reuse, recycle, recover. ♺")
             
 
-    "Check session state", st.session_state
+    # "Check session state", st.session_state
 
 if __name__ == "__main__":
     main()
