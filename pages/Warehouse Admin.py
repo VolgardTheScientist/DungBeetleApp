@@ -14,11 +14,11 @@ import tempfile
 
 st.set_page_config(layout="wide")
 st.title("Warehouse Admin")
-st.markdown("Welcome to the Dung Beetle digital material warehouse administration page."
-    "Here you can check the quality of IFC files and if satisifed with their quality, merge them with the main warehouse DataFrame."
-    "Please note that the at this time only IFC 4 files are being accepted and that full project address data has to be provided in the file."
-    "All files not meeting these criteria will be automatically rejected."
-    "Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.")
+st.markdown("""<p>Welcome to the Dung Beetle digital material warehouse administration page.</p>
+    Here you can check the quality of IFC files and if satisifed with their quality, merge them with the main warehouse DataFrame.<br>
+    Please note that the at this time only IFC 4 files are being accepted and that full project address data has to be provided in the file.<br>
+    All files not meeting these criteria will be automatically rejected.<br>
+    Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.""", unsafe_allow_html=True)
 
 # ========== Create a Google Cloud Storage client ==========
 
