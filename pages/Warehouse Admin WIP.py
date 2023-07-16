@@ -106,20 +106,23 @@ ifcEntity_dataframes = {}
 for entity in IfcEntities:
     ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
+# ========== Here starts Session Key Code ==========
+
 if "file_uploader_key" not in st.session_state:
     st.session_state["file_uploader_key"] = 0
+
+if "uploaded_file" not in st.session_state:
+    st.session_state["uploaded_file"] = []
 
 uploaded_file = st.file_uploader(
     "Upload an IFC file", 
     type=["ifc"], 
-    key=st.session_state["file_uploader_key"]
-)
+    key=st.session_state["file_uploader_key"])
 
 if uploaded_file:
     st.session_state["uploaded_files"] = uploaded_file
 
-if "uploaded_file" not in st.session_state:
-    st.session_state["uploaded_file"] = []
+# ========== Here starts the DataFrame Generator ==========
 
 if uploaded_file is not None:
     # Save the uploaded file to the bucket
@@ -170,6 +173,8 @@ if uploaded_file is not None:
             file_name=f"{entity}.pickle",
             mime="application/octet-stream",
         )
+
+# ========== Here starts APPROVE / REJECT process ==========
 
 if uploaded_file is not None:
 
