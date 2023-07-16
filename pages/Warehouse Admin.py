@@ -144,6 +144,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
         # Loop through the IfcEntities and append data to the respective dataframe
         for entity in IfcEntities:
             warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
+            st.write(warehouse_data)
             generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
             generated_df['Building ID'] = building_ID
             generated_df['Project ID'] = uploaded_file.name[:-4]
