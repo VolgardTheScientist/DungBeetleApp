@@ -19,6 +19,7 @@ st.markdown("""<p>Welcome to the Dung Beetle digital material warehouse administ
     Please note that the at this time only IFC 4 files are being accepted and that full project address data has to be provided in the file.<br>
     All files not meeting these criteria will be automatically rejected.<br>
     Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.<br>""", unsafe_allow_html=True)
+st.write("")
 
 # ========== Create a Google Cloud Storage client ==========
 
