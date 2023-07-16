@@ -124,7 +124,7 @@ if uploaded_file:
 
 # ========== Here starts the DataFrame Generator ==========
 
-if st.session_state["uploaded_ifc_file"] is not None:
+if st.session_state["uploaded_ifc_file"] is not "Uploaded to GCS":
     if uploaded_file is not None:
         # Save the uploaded file to the bucket
         blob_name = uploaded_file.name
@@ -179,9 +179,9 @@ if uploaded_file is not None:
                 # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
                 delete_from_bucket(blob_name)
                 delete_pickles("streamlit_warehouse")
-                st.write("SUCCESS!")
+                st.success("SUCCESS!")
                 st.session_state["file_uploader_key"] += 1
-                st.session_state["uploaded_ifc_file"] = None
+                st.session_state["uploaded_ifc_file"] = "Uploaded to GCS"
                 st.experimental_rerun()
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
@@ -194,9 +194,9 @@ if uploaded_file is not None:
                     generated_df.to_pickle(pickle_data)
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
-                    st.write("SUCCESS!")
+                    st.success("SUCCESS!")
                     st.session_state["file_uploader_key"] += 1
-                    st.session_state["uploaded_ifc_file"] = None
+                    st.session_state["uploaded_ifc_file"] = "Uploaded to GCS"
                     st.experimental_rerun()
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
