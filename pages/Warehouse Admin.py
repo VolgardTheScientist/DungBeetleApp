@@ -123,7 +123,7 @@ if uploaded_file:
 
 # ========== DataFrame Generator from IFC ==========
 
-IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
+IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
 
 ifcEntity_dataframes = {}
 for entity in IfcEntities:
