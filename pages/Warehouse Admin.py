@@ -147,7 +147,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             # DEBUG: st.write(warehouse_data)
             # DEBUG: st.text(type(warehouse_data))
             generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
-            st.write(generated_df)
+            # DEBUG: st.write(generated_df)
             generated_df['Building ID'] = building_ID
             generated_df['Project ID'] = uploaded_file.name[:-4]
             generated_df['Street'] = street
@@ -163,7 +163,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
             # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
             # DEBUG: st.write(generated_df)
-            ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
+            ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
         # Print the dataframes and provide download button
         for entity, generated_df in ifcEntity_dataframes.items():
             st.write(f"{entity}:")
@@ -173,7 +173,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             generated_df.to_pickle(pickle_data)
             pickle_data.seek(0)
             # Save the generated pickle to the bucket
-            save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+            save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
             st.download_button(
                 label=f"Download {entity}.pickle",
                 data=pickle_data,
