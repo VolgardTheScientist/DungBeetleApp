@@ -207,6 +207,6 @@ if uploaded_file is not None:
                     st.experimental_rerun()
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
-st.success("", st.session_state["uploaded_ifc_file"])
+st.write("", st.session_state["uploaded_ifc_file"])
 
 st.write(st.session_state)
