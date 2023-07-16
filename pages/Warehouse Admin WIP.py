@@ -10,9 +10,8 @@ from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import tempfile
 
-st.write(pd.__version__)
+# ========== Create a Google Cloud Storage client ==========
 
-# Create a Google Cloud Storage client
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
 
@@ -122,7 +121,7 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
     st.session_state["uploaded_ifc_file"] = uploaded_file
 
-# ========== Here starts the DataFrame Generator ==========
+# ========== DataFrame Generator from IFC ==========
 
 IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
 
@@ -175,7 +174,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
                 mime="application/octet-stream",
             )
 
-# ========== Here starts APPROVE / REJECT process ==========
+# ========== APPROVE / REJECT process with upload to GCS ==========
 
 if uploaded_file is not None:
 
@@ -210,5 +209,3 @@ if uploaded_file is not None:
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
 st.write("", st.session_state["uploaded_ifc_file"])
-
-st.write(st.session_state)
