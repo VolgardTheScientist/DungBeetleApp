@@ -100,11 +100,12 @@ def save_pickle_to_bucket(pickle_data, blob_name):
     blob = bucket.blob(blob_name)
     blob.upload_from_file(pickle_data)
 
-IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
-
-ifcEntity_dataframes = {}
-for entity in IfcEntities:
-    ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
+if st.session_state["rerun_page"] is not "no":
+    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
+    
+    ifcEntity_dataframes = {}
+    for entity in IfcEntities:
+        ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
 # ========== Here starts Session Key Code ==========
 
@@ -124,7 +125,7 @@ if uploaded_file:
 
 # ========== Here starts the DataFrame Generator ==========
 
-if st.session_state["uploaded_ifc_file"] is not "Uploaded to GCS":
+if st.session_state["rerun_page"] is not "no":
     if uploaded_file is not None:
         # Save the uploaded file to the bucket
         blob_name = uploaded_file.name
@@ -181,7 +182,8 @@ if uploaded_file is not None:
                 delete_pickles("streamlit_warehouse")
                 st.success("SUCCESS!")
                 st.session_state["file_uploader_key"] += 1
-                st.session_state["uploaded_ifc_file"] = "Uploaded to GCS"
+                st.session_state["uploaded_ifc_file"] = "You have rejected the merge with the main GCS DataFrame, please reload this page to restart the process."
+                st.session_state["rerun_page"] = "no"
                 st.experimental_rerun()
             st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
 
@@ -196,10 +198,11 @@ if uploaded_file is not None:
                     save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
                     st.success("SUCCESS!")
                     st.session_state["file_uploader_key"] += 1
-                    st.session_state["uploaded_ifc_file"] = "Uploaded to GCS"
+                    st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
+                    st.session_state["rerun_page"] = "no"
                     st.experimental_rerun()
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
-st.write("Uploaded IFC file:", st.session_state["uploaded_ifc_file"])
+st.success("", st.session_state["uploaded_ifc_file"])
 
 st.write(st.session_state)
