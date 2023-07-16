@@ -129,11 +129,14 @@ if uploaded_file is not None:
     blob_name = uploaded_file.name
     save_to_bucket(uploaded_file, blob_name)
     uploaded_file.seek(0)  # Add this line
+    
     # Download the file back from the bucket to a local file
     local_filename = download_from_bucket(blob_name)
     ifc_file_admin_upload = ifcopenshell.open(local_filename)
+
     # Get the project address
     building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
+
     # Loop through the IfcEntities and append data to the respective dataframe
     for entity in IfcEntities:
         warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
@@ -150,16 +153,20 @@ if uploaded_file is not None:
         # Remove rows with missing latitude or longitude values
         generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
         ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
+
     # Print the dataframes and provide download button
     for entity, generated_df in ifcEntity_dataframes.items():
         st.write(f"{entity}:")
         st.write(generated_df)
         st.map(generated_df)
+        
         pickle_data = io.BytesIO()
         generated_df.to_pickle(pickle_data)
         pickle_data.seek(0)
+
         # Save the generated pickle to the bucket
         save_pickle_to_bucket(pickle_data, f"wh_{entity}.pickle")
+
         st.download_button(
             label=f"Download {entity}.pickle",
             data=pickle_data,
@@ -198,5 +205,3 @@ if uploaded_file is not None:
             st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
 st.write("Uploaded IFC file:", st.session_state["uploaded_ifc_file"])
-
-st.write(st.session_state)
