@@ -16,6 +16,9 @@ st.write(pd.__version__)
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
 storage_client = storage.Client(credentials=credentials)
 
+
+# ========== Function definitions ==========
+
 def save_to_bucket(uploaded_file, blob_name):
     """Save a file to a GCS bucket."""
     bucket = storage_client.bucket('warehouse_processing_directory')
@@ -100,7 +103,7 @@ def save_pickle_to_bucket(pickle_data, blob_name):
     blob = bucket.blob(blob_name)
     blob.upload_from_file(pickle_data)
 
-# ========== Here starts Session Key Code ==========
+# ========== Session Key Code & File Uploader ==========
 
 if "file_uploader_key" not in st.session_state:
     st.session_state["file_uploader_key"] = 0
@@ -121,15 +124,14 @@ if uploaded_file:
 
 # ========== Here starts the DataFrame Generator ==========
 
-if st.session_state["rerun_page"] is not "no":
-    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
-    
-    ifcEntity_dataframes = {}
-    for entity in IfcEntities:
-        ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
+IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall"]
 
+ifcEntity_dataframes = {}
+for entity in IfcEntities:
+    ifcEntity_dataframes["wh_" + entity] = pd.DataFrame()
 
-if st.session_state["rerun_page"] is not "no":
+# if st.session_state["rerun_page"] is not "no":
+if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
     if uploaded_file is not None:
         # Save the uploaded file to the bucket
         blob_name = uploaded_file.name
