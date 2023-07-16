@@ -147,6 +147,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             st.write(warehouse_data)
             st.text(type(warehouse_data))
             generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
+            st.write(generated_df)
             generated_df['Building ID'] = building_ID
             generated_df['Project ID'] = uploaded_file.name[:-4]
             generated_df['Street'] = street

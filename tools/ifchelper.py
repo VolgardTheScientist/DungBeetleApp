@@ -70,16 +70,9 @@ def get_attribute_value(object_data, attribute):
         else:
             return None
 
-# def create_pandas_dataframe(data):
-#     import pandas as pd
-#     df = pd.json_normalize(data, sep='.')
-#     return df
-
 def create_pandas_dataframe(data):
     import pandas as pd
-    import json
-    json_data = json.dumps(data)
-    df = pd.json_normalize(json_data, sep='.')
+    df = pd.json_normalize(data, sep='.')
     return df
 
 def get_stories(file):
