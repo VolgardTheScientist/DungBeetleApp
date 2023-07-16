@@ -157,9 +157,12 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             generated_df['Country'] = country
             generated_df['Complete address'] = complete_address
             get_project_geocoordinates(generated_df)
-            st.write(generated_df)
             # Remove rows with missing latitude or longitude values
+            st.write("Test obtaining geocoordinates")
+            st.write(generated_df)
             generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
+            st.write("Test removing rowd with missing latitiude and longitude")
+            st.write(generated_df)
             ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["wh_" + entity], generated_df], ignore_index=True)
         # Print the dataframes and provide download button
         for entity, generated_df in ifcEntity_dataframes.items():
