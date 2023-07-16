@@ -163,7 +163,7 @@ if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
             generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
             # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
             # DEBUG: st.write(generated_df)
-            ifcEntity_dataframes["wh_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
+            ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
         # Print the dataframes and provide download button
         for entity, generated_df in ifcEntity_dataframes.items():
             st.write(f"{entity}:")
