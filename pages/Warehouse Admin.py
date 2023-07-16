@@ -138,6 +138,41 @@ def backup_pickles():
             # Copy the blob to the new blob
             new_blob.rewrite(blob)
 
+def merge_dataframes():
+    """Merge pickled dataframes from 'pickles_processing_directory' to 'pickle_warehouse'"""
+    # Define the buckets
+    processing_bucket = storage_client.bucket('pickles_processing_directory')
+    warehouse_bucket = storage_client.bucket('pickle_warehouse')
+
+    # Get all blobs in the processing bucket
+    processing_blobs = processing_bucket.list_blobs()
+    
+    for temp_blob in processing_blobs:
+        if temp_blob.name.startswith("temp_") and temp_blob.name.endswith(".pickle"):
+            # Load the temp dataframe
+            temp_df = pd.read_pickle(temp_blob.download_as_text())
+
+            # Get the entity name
+            entity = temp_blob.name[5:-7]  # Removing "temp_" and ".pickle"
+
+            # Check if there is a "wh_" blob in the warehouse bucket
+            wh_blob = warehouse_bucket.blob(f"wh_{entity}.pickle")
+            
+            if wh_blob.exists():
+                # If exists, load the warehouse dataframe and merge with the temp dataframe
+                wh_df = pd.read_pickle(wh_blob.download_as_text())
+                merged_df = pd.concat([wh_df, temp_df])
+                
+                # Save the merged dataframe back to the "wh_" blob
+                wh_blob.upload_from_string(merged_df.to_pickle())
+            else:
+                # If not exists, rename the temp blob to "wh_" and move to the warehouse bucket
+                new_blob = warehouse_bucket.blob(f"wh_{entity}.pickle")
+                new_blob.rewrite(temp_blob)
+
+            # Delete the temp blob after processing
+            temp_blob.delete()
+
 # ========== Session Key Code & File Uploader ==========
 
 if "file_uploader_key" not in st.session_state:
@@ -245,6 +280,7 @@ if uploaded_file is not None:
                     pickle_data.seek(0)
                     save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
                     backup_pickles()
+                    merge_dataframes()
                     st.success("SUCCESS!")
                     st.session_state["file_uploader_key"] += 1
                     st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
