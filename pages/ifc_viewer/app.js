@@ -2,10 +2,6 @@
 import { Color } from "three";
 import { IfcViewerAPI } from "web-ifc-viewer";
 
-let fileUrl = ''; // This will hold the URL of the file to download
-
-const container = document.getElementById("button-container");
-
 function sendMessageToStreamlitClient(type, data) {
     const message = { ...data, isStreamlitMessage: true, type };
     window.parent.postMessage(message, "*");
@@ -27,16 +23,6 @@ async function loadIfc(url) {
     // Load the model
     const model = await viewer.IFC.loadIfcUrl(url, COORDINATE_TO_ORIGIN = true);
   
-    // // Create a bounding box around the model
-    // const bbox = new Box3().setFromObject(model.mesh);
-  
-    // // Compute the center of the bounding box
-    // const center = new Vector3();
-    // bbox.getCenter(center);
-  
-    // // Translate the model so that the center of the bounding box is at the origin
-    // model.mesh.position.sub(center);
-  
     // Add dropped shadow and post-processing effect
     await viewer.shadowDropper.renderShadow(model.modelID);
     viewer.context.renderer.postProduction.active = true;  
@@ -51,23 +37,16 @@ function onDataFromPython(event) {
     }
 }
 
+let fileUrl = ''; // This will hold the URL of the file to download
 
-// const link = document.createElement("a"); // Create the link element
-// container.appendChild(button);
-// button.textContent = "Download IFC";
-// button.onclick = () => {
-//     link.download = 'model.ifc';
-//     link.href = fileUrl;
-//     document.body.appendChild(link);
-//     link.click();
-//     link.remove();
-// };
+const container = document.getElementById("button-container");
 
 const button_container = document.getElementById("button-container");
 const button = document.createElement("button");
 button_container.appendChild(button);
 button.textContent = "Download IFC";
-button.onclick = () => {
+button.onclick = (event) => {
+    event.preventDefault(); // Add this line to prevent the default action
     if (fileUrl !== '') {
         fetch(fileUrl)
             .then(response => response.blob())
@@ -85,6 +64,25 @@ button.onclick = () => {
         console.log("No file URL has been passed from Python.")
     }
 };
+
+//button.onclick = () => {
+//    if (fileUrl !== '') {
+//        fetch(fileUrl)
+//            .then(response => response.blob())
+//            .then(blob => {
+//                const href = URL.createObjectURL(blob);
+//                const link = document.createElement('a');
+//                link.href = href;
+//                link.download = 'reuse_component.ifc';
+//                document.body.appendChild(link);
+//                link.click();
+//                link.remove();
+//            })
+//            .catch(console.error);
+//    } else {
+//        console.log("No file URL has been passed from Python.")
+//    }
+//};
 
 
 // Hook things up!
