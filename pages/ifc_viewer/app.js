@@ -65,26 +65,6 @@ button.onclick = (event) => {
     }
 };
 
-//button.onclick = () => {
-//    if (fileUrl !== '') {
-//        fetch(fileUrl)
-//            .then(response => response.blob())
-//            .then(blob => {
-//                const href = URL.createObjectURL(blob);
-//                const link = document.createElement('a');
-//                link.href = href;
-//                link.download = 'reuse_component.ifc';
-//                document.body.appendChild(link);
-//                link.click();
-//                link.remove();
-//            })
-//            .catch(console.error);
-//    } else {
-//        console.log("No file URL has been passed from Python.")
-//    }
-//};
-
-
 // Hook things up!
 window.addEventListener("message", onDataFromPython);
 init();
@@ -96,3 +76,27 @@ window.addEventListener("load", function() {
     }, 0);
 });
 
+// Floor plan viewing
+
+const allPlans = viewer.plans.getAll(model.modelID);
+
+for (const plan of allPlans) {
+    const currentPlan = viewer.plans.planLists[model.modelID][plan];
+    console.log(currentPlan);
+
+    const buttonPlan = document.createElement('button');
+    container.appendChild(button);
+    buttonPlan.textContent = currentPlan.name;
+    buttonPlan.onclick = () => {
+        viewer.plans.goTo(model.modelID, plan);
+        viewer.edges.toggle('example', true);
+    };
+}
+
+const buttonExit = document.createElement('button');
+container.appendChild(button);
+buttonExit.textContent = 'Exit';
+buttonExit.onclick = () => {
+    viewer.plans.exitPlanView();
+    viewer.edges.toggle('example', false);
+};
