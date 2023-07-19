@@ -392,6 +392,12 @@ if uploaded_file:
 if "is_file_uploaded" in st.session_state and st.session_state["is_file_uploaded"]:
     st.sidebar.success("File is loaded")
     st.sidebar.write ("Your project is ready to be reviewed. Reduce, reuse, recycle, recover. ♺")
+    execute()
+else:
+    st.title("Dung Beetle Deconstruction Grid")
+    st.write(
+        """Upload your IFC project data to review your deconstruction and material recovery potential. Remember to assign Connection Types to your building components. 
+        """
+)
 
-execute()
 
