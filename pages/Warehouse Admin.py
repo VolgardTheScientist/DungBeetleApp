@@ -59,23 +59,46 @@ def download_from_bucket(blob_name):
     return temp_local_filename
 
 
+# def get_project_geocoordinates(generated_df):
+#     locator = Nominatim(user_agent="OpenMapQuest")
+#     geocode = RateLimiter(locator.geocode, min_delay_seconds=1)
+#     generated_df['location'] = generated_df['Complete address'].apply(geocode)
+#     generated_df['point'] = generated_df['location'].apply(lambda loc: tuple(loc.point) if loc else (np.nan, np.nan, np.nan))
+#     generated_df['latitude'] = np.nan
+#     generated_df['longitude'] = np.nan
+#     generated_df['altitude'] = np.nan
+#     for idx, point in generated_df['point'].items():
+#         if not np.isnan(point[0]):
+#             generated_df.at[idx, 'latitude'] = point[0]
+#             generated_df.at[idx, 'longitude'] = point[1]
+#             generated_df.at[idx, 'altitude'] = point[2]
+#     generated_df['latitude'] = generated_df['latitude'].astype('float64')
+#     generated_df['longitude'] = generated_df['longitude'].astype('float64')
+#     generated_df['altitude'] = generated_df['altitude'].astype('float64')
+#     generated_df.drop(columns=['location', 'point', 'altitude'], inplace=True)
+
 def get_project_geocoordinates(generated_df):
     locator = Nominatim(user_agent="OpenMapQuest")
     geocode = RateLimiter(locator.geocode, min_delay_seconds=1)
-    generated_df['location'] = generated_df['Complete address'].apply(geocode)
-    generated_df['point'] = generated_df['location'].apply(lambda loc: tuple(loc.point) if loc else (np.nan, np.nan, np.nan))
-    generated_df['latitude'] = np.nan
-    generated_df['longitude'] = np.nan
-    generated_df['altitude'] = np.nan
-    for idx, point in generated_df['point'].items():
-        if not np.isnan(point[0]):
-            generated_df.at[idx, 'latitude'] = point[0]
-            generated_df.at[idx, 'longitude'] = point[1]
-            generated_df.at[idx, 'altitude'] = point[2]
+    
+    if not generated_df.empty:
+        location = geocode(generated_df.iloc[0]['Complete address'])
+        point = tuple(location.point) if location else (np.nan, np.nan, np.nan)
+        
+        # Add latitude, longitude, and altitude to the entire dataframe
+        generated_df['latitude'] = point[0]
+        generated_df['longitude'] = point[1]
+        generated_df['altitude'] = point[2]
+    else:
+        generated_df['latitude'] = np.nan
+        generated_df['longitude'] = np.nan
+        generated_df['altitude'] = np.nan
+        
     generated_df['latitude'] = generated_df['latitude'].astype('float64')
     generated_df['longitude'] = generated_df['longitude'].astype('float64')
     generated_df['altitude'] = generated_df['altitude'].astype('float64')
-    generated_df.drop(columns=['location', 'point', 'altitude'], inplace=True)
+    
+    return generated_df
 
 
 def get_project_address(ifc_file_admin_upload):
