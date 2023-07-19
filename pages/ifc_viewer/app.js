@@ -64,14 +64,15 @@ function onDataFromPython(event) {
 // };
 
 const button = document.createElement("button");
+const link = document.createElement("a"); // Create the link element
 container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
-	link.download = 'model.ifc';
-	link.href = fileUrl;
-	document.body.appendChild(link);
-	link.click();
-	link.remove();
+    link.download = 'model.ifc';
+    link.href = fileUrl;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 };
 
 // Hook things up!
