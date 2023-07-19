@@ -64,7 +64,7 @@ function onDataFromPython(event) {
 // };
 
 const button = document.createElement("button");
-const link = document.createElement("a"); // Create the link element
+// const link = document.createElement("a"); // Create the link element
 container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
