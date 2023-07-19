@@ -110,35 +110,35 @@ def main():
 
 
 
-    uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
-
-    if uploaded_file:
-        # Read the contents of the uploaded file
-        file_contents = uploaded_file.read()
-
-        # Encode the file contents as base64
-        base64_file_contents = base64.b64encode(file_contents).decode()
-
-        # Create a data URL
-        url = f"data:application/octet-stream;base64,{base64_file_contents}"
-
-        # Use data_url wherever you need it
-        # Example: passing it to another Streamlit component
-        # st.some_component(data_url)
-
-        # Create a hyperlink to download the file
-        url = f"data:application/octet-stream;base64,{base64_file_contents}"
-        st.session_state["IFC_href_ready"] = True
-        st.session_state["url"] = url
-        
-
-
-    # don't get why is there the part after and below...
-
-    if "is_file_uploaded" in st.session_state and st.session_state["is_file_uploaded"]:
-
-        st.sidebar.success("File is loaded")
-        st.sidebar.write ("Your project is ready to be reviewed. Reduce, reuse, recycle, recover. ♺")
+    #uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
+#
+    #if uploaded_file:
+    #    # Read the contents of the uploaded file
+    #    file_contents = uploaded_file.read()
+#
+    #    # Encode the file contents as base64
+    #    base64_file_contents = base64.b64encode(file_contents).decode()
+#
+    #    # Create a data URL
+    #    url = f"data:application/octet-stream;base64,{base64_file_contents}"
+#
+    #    # Use data_url wherever you need it
+    #    # Example: passing it to another Streamlit component
+    #    # st.some_component(data_url)
+#
+    #    # Create a hyperlink to download the file
+    #    url = f"data:application/octet-stream;base64,{base64_file_contents}"
+    #    st.session_state["IFC_href_ready"] = True
+    #    st.session_state["url"] = url
+    #    
+#
+#
+    ## don't get why is there the part after and below...
+#
+    #if "is_file_uploaded" in st.session_state and st.session_state["is_file_uploaded"]:
+#
+    #    st.sidebar.success("File is loaded")
+    #    st.sidebar.write ("Your project is ready to be reviewed. Reduce, reuse, recycle, recover. ♺")
             
 
     # "Check session state", st.session_state

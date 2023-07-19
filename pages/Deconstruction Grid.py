@@ -9,6 +9,7 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import streamlit as st
 import streamlit.components.v1 as components
 import altair as alt
+import base64
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
@@ -17,6 +18,13 @@ from pandas.api.types import (
 )
 
 session = st.session_state
+
+
+def callback_upload():
+    st.session_state["file_name"] = st.session_state["uploaded_file"].name
+    st.session_state["is_file_uploaded"] = True
+    st.session_state["array_buffer"] = st.session_state["uploaded_file"].getvalue()
+    st.session_state["ifc_file"] = ifcopenshell.file.from_string(st.session_state["uploaded_file"].getvalue().decode("utf-8"))
 
 @st.cache
 def convert_df(df):
@@ -363,11 +371,27 @@ def execute():
     
     st.header("All building components contained in your project:")
     draw_configured_aggrid(df)  
+
+uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
+if uploaded_file:
+    # Read the contents of the uploaded file
+    file_contents = uploaded_file.read()
+    # Encode the file contents as base64
+    base64_file_contents = base64.b64encode(file_contents).decode()
+    # Create a data URL
+    url = f"data:application/octet-stream;base64,{base64_file_contents}"
+    # Use data_url wherever you need it
+    # Example: passing it to another Streamlit component
+    # st.some_component(data_url)
+    # Create a hyperlink to download the file
+    url = f"data:application/octet-stream;base64,{base64_file_contents}"
+    st.session_state["IFC_href_ready"] = True
+    st.session_state["url"] = url
     
+# don't get why is there the part after and below...
+if "is_file_uploaded" in st.session_state and st.session_state["is_file_uploaded"]:
+    st.sidebar.success("File is loaded")
+    st.sidebar.write ("Your project is ready to be reviewed. Reduce, reuse, recycle, recover. ♺")
+
 execute()
-
-
-
-
-
 
