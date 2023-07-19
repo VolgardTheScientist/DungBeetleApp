@@ -83,9 +83,18 @@ def main():
 
         st.markdown(
             """
-            ### Click on Browse file to begin (only IFC 4 Reference View files)
-            """
+            In the construction industry, especially in developed countries like the EU, USA, Australia, China, and Switzerland, demolition waste poses a significant problem. It forms the largest waste stream, amplifying the urgency for more sustainable approaches to building and demolition. It is this pressing issue that Dung Beetle aims to tackle.
+
+        Welcome to Dung Beetle, a web application developed under the auspices of the University of Liechtenstein, that offers an innovative solution for addressing the global waste issue in the construction industry. Spearheaded by Piotr Piotrowski and supervised by Prof. Daniel Stockhammer and Prof. Andreas Putz, Dung Beetle leverages Building Information Modelling (BIM) to promote a shift from a linear to a circular economy.
+        
+        This tool allows architects to utilize BIM technology to analyze their designs, helping to assess the deconstruction potential and the end-of-life impact of their buildings. Dung Beetle also provides access to IFC models of parts for potential reuse, integrating them seamlessly into the planning process and easing the search for reusable components.
+        
+        By transitioning from the conventional 'take, make, dispose' model to the more sustainable 'make, use, recycle' approach, Dung Beetle is a valuable aid for architects and builders seeking to reduce the environmental impact of their projects. Join us in using Dung Beetle to tackle the demolition waste problem and contribute to building a more sustainable future.
+        
+        """
         )
+
+
 
     with col2:
         video = load_video('https://storage.googleapis.com/dungbeetle_media/DungBeetleIntro.mp4')

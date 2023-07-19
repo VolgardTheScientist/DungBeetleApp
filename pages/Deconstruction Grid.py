@@ -401,7 +401,7 @@ else:
 )
     st.markdown(
         """
-        Please note: at this time only **IFC 4 Reference View** files can be analysed)
+        Please note: at this time only **IFC 4 Reference View** files can be analysed.
         """
 )
 
