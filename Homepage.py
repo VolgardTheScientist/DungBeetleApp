@@ -101,8 +101,6 @@ def main():
             st.write("JavaScript Programming Language")
     st.subheader("Dung Beetle© is powered by Open Source")
 
-    st.write("I cannot see changes in homepage?")
-
 
 
 
