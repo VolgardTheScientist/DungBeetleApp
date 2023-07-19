@@ -16,6 +16,11 @@ def get_project_name():
 def change_project_name():
     st.session_state["ifc_file"].by_type("IfcProject")[0].Name = st.session_state["project_name_input"]
 
+@st.cache
+def load_video(url):
+    video = url
+    return video
+
 def main():      
     st.set_page_config(
         layout= "wide",
@@ -80,7 +85,8 @@ def main():
         )
 
     with col2:
-        st.video('https://storage.googleapis.com/dungbeetle_media/DungBeetleIntro.mp4')
+        video = load_video('https://storage.googleapis.com/dungbeetle_media/DungBeetleIntro.mp4')
+        st.video(video)
     
 
     with st.container():        
