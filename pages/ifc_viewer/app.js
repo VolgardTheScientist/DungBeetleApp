@@ -63,16 +63,23 @@ function onDataFromPython(event) {
 //     link.remove();
 // };
 
+const button_container = document.getElementById("button-container");
 const button = document.createElement("button");
-// const link = document.createElement("a"); // Create the link element
-container.appendChild(button);
+button_container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
-    link.download = 'model.ifc';
-    link.href = fileUrl;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+          const href = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = href;
+          link.download = 'reuse_component.ifc';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+      })
+      .catch(console.error);
 };
 
 // Hook things up!
