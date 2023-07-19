@@ -2,6 +2,8 @@
 import { Color } from "three";
 import { IfcViewerAPI } from "web-ifc-viewer";
 
+let fileUrl = ''; // This will hold the URL of the file to download
+
 const container = document.getElementById("button-container");
 
 function sendMessageToStreamlitClient(type, data) {
@@ -44,16 +46,29 @@ function onDataFromPython(event) {
     if (event.data.type !== "streamlit:render") return;
     const url = event.data.args.url;
     if(url){
+        fileUrl = url; // Save the url to the fileUrl variable
         loadIfc(url);
     }
 }
+
+
+// const link = document.createElement("a"); // Create the link element
+// container.appendChild(button);
+// button.textContent = "Download IFC";
+// button.onclick = () => {
+//     link.download = 'model.ifc';
+//     link.href = fileUrl;
+//     document.body.appendChild(link);
+//     link.click();
+//     link.remove();
+// };
 
 const button = document.createElement("button");
 container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
 	link.download = 'model.ifc';
-	link.href = url;
+	link.href = fileUrl;
 	document.body.appendChild(link);
 	link.click();
 	link.remove();
