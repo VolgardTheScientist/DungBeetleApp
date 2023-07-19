@@ -68,7 +68,7 @@ const button = document.createElement("button");
 button_container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
-  fetch(url)
+  fetch(fileUrl)
       .then(response => response.blob())
       .then(blob => {
           const href = URL.createObjectURL(blob);
