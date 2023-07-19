@@ -1,6 +1,9 @@
 import streamlit as st
 import ifcopenshell
 import base64
+import numpy as np
+import pandas as pd
+import pkg_resources
 
 session = st.session_state
 
@@ -107,7 +110,12 @@ def main():
             st.write("JavaScript Programming Language")
     st.subheader("Dung Beetle© is powered by Open Source")
 
-
+    with st.expander("See environment details"):
+        ifcPenShellVersion = pkg_resources.get_distribution("ifcopenshell").version
+        st.write("Pandas: ", pd.__version__)
+        st.write("Streamlit: ", st.__version__)
+        st.write("Numpy: ", np.__version__)
+        st.write("IfcOpenShell: ", ifcPenShellVersion)
 
 
     #uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
