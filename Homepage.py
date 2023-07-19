@@ -58,6 +58,8 @@ def main():
     # Create columns
     col1, col2 = st.columns(2)  # Create two columns
 
+    col3, col4, col5, col6, col7 = st.columns(5)
+    
     with col1:
         st.markdown(
             """
@@ -80,6 +82,28 @@ def main():
     with col2:
         st.video('DungBeetleIntro.mp4')
     
+
+    with st.container():        
+        with col3:
+            st.image("./images/IFCjs.png", width=100)
+            st.write("IFCjs BIM Toolkit for JavaScript")
+        with col4:
+            st.image("./images/IfcOpenShell.png", width=100)
+            st.write("IfcOpenShell IFC toolkit and geometry engine")
+        with col5:
+            st.image("./images/python_BW.png", width=100)
+            st.write("Python Programming Language")
+        with col6:
+            st.image("./images/Streamlit.png", width=100)
+            st.write("Streamlit app framework")
+        with col7:
+            st.image("./images/JavaScript.png", width=100)
+            st.write("JavaScript Programming Language")
+    st.subheader("Dung Beetle© is powered by Open Source")
+
+
+
+
     uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
 
     if uploaded_file:

@@ -2,6 +2,8 @@
 import { Color } from "three";
 import { IfcViewerAPI } from "web-ifc-viewer";
 
+const container = document.getElementById("button-container");
+
 function sendMessageToStreamlitClient(type, data) {
     const message = { ...data, isStreamlitMessage: true, type };
     window.parent.postMessage(message, "*");
@@ -45,6 +47,17 @@ function onDataFromPython(event) {
         loadIfc(url);
     }
 }
+
+const button = document.createElement("button");
+container.appendChild(button);
+button.textContent = "Download IFC";
+button.onclick = () => {
+	link.download = 'model.ifc';
+	link.href = url;
+	document.body.appendChild(link);
+	link.click();
+	link.remove();
+};
 
 // Hook things up!
 window.addEventListener("message", onDataFromPython);
