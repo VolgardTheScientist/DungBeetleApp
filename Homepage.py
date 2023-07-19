@@ -19,7 +19,7 @@ def get_project_name():
 def change_project_name():
     st.session_state["ifc_file"].by_type("IfcProject")[0].Name = st.session_state["project_name_input"]
 
-@st.cache
+@st.cache_data
 def load_video(url):
     video = url
     return video
