@@ -80,24 +80,24 @@ def main():
         )
 
     with col2:
-        st.video('DungBeetleIntro.mp4')
+        st.video('https://storage.googleapis.com/dungbeetle_media/DungBeetleIntro.mp4')
     
 
     with st.container():        
         with col3:
-            st.image("./images/IFCjs.png", width=100)
+            st.image("https://storage.googleapis.com/dungbeetle_media/IFCjs.png", width=100)
             st.write("IFCjs BIM Toolkit for JavaScript")
         with col4:
-            st.image("./images/IfcOpenShell.png", width=100)
+            st.image("https://storage.googleapis.com/dungbeetle_media/IfcOpenShell.png", width=100)
             st.write("IfcOpenShell IFC toolkit and geometry engine")
         with col5:
-            st.image("./images/python_BW.png", width=100)
+            st.image("https://storage.googleapis.com/dungbeetle_media/python_BW.png", width=100)
             st.write("Python Programming Language")
         with col6:
-            st.image("./images/Streamlit.png", width=100)
+            st.image("https://storage.googleapis.com/dungbeetle_media/streamlit.png", width=100)
             st.write("Streamlit app framework")
         with col7:
-            st.image("./images/JavaScript.png", width=100)
+            st.image("https://storage.googleapis.com/dungbeetle_media/JavaScript.png", width=100)
             st.write("JavaScript Programming Language")
     st.subheader("Dung Beetle© is powered by Open Source")
 
