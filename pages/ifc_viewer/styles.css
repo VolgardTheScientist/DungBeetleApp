@@ -24,3 +24,24 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+#button-container button {
+    background-color: white; /* white background */
+    color: #ff4b4b; /* text color */
+    border: 2px solid #ff4b4b; /* border style */
+    padding: 15px 15px; /* top/bottom padding of 15px, left/right padding of 32px */
+    text-align: center; /* center text */
+    text-decoration: none; /* no underline */
+    display: inline-block;
+    font-size: 1rem; /* text size */
+    margin: 0.25rem 0.12rem; /* margin around button */
+    cursor: pointer; /* cursor changes to hand icon on hover */
+    border-radius: 0.25rem; /* rounded corners */
+    transition: background-color 0.3s ease, color 0.3s ease; /* smooth color transition */
+    /* Other styles as needed... */
+}
+
+#button-container button:hover {
+    background-color: #ff4b4b; /* background color when hovered */
+    color: white; /* text color when hovered */
+}
