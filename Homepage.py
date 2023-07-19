@@ -71,26 +71,19 @@ def main():
     with col1:
         st.markdown(
             """
-            Transition from linear (take, make, dispose) towards circular economy (make, use, recycle) is a fundamental prerequisite for achieving a sustainable growth and limiting global warming.
-        Digitalization and management of material flows play a central role in the circular economy. Construction and demolition waste is particularly important, as it is the largest waste stream in many developed countries,
-        e.g. in the EU, USA, Australia, China and Switzerland. In the world of digital transformation, a BIM model is a digital representation of a physical asset. Such virtual material banks hold enormous potential for
-        innovation in sustainable design, (de-)construction, finance and investment related to the built environment.
-        Dung Beetle is a research project exploring possibilities of using BIM models to analyse deconstruction potential of buildings and to use BIM data as a basis for digital material banks. 
-
-        Would you like to find out more or find out how much re-use potential does your own building project have? Get in touch with us: piotr.piotrowski[at]uni.li, or just go ahead and upload your IFC4 MVD: Reference View file 
-        and check the results. 
-        """)
-
-        st.markdown(
-            """
             In the construction industry, especially in developed countries like the EU, USA, Australia, China, and Switzerland, demolition waste poses a significant problem. It forms the largest waste stream, amplifying the urgency for more sustainable approaches to building and demolition. It is this pressing issue that Dung Beetle aims to tackle.
 
-        Welcome to Dung Beetle, a web application developed under the auspices of the University of Liechtenstein, that offers an innovative solution for addressing the global waste issue in the construction industry. Spearheaded by Piotr Piotrowski and supervised by Prof. Daniel Stockhammer and Prof. Andreas Putz, Dung Beetle leverages Building Information Modelling (BIM) to promote a shift from a linear to a circular economy.
-        
+        Welcome to Dung Beetle, a web application developed under the auspices of the **University of Liechtenstein**, that offers an innovative solution for addressing the global waste issue in the construction industry. Spearheaded by Piotr Piotrowski and supervised by Prof. Daniel Stockhammer and Prof. Andreas Putz, Dung Beetle leverages Building Information Modelling (BIM) to promote a shift from a linear to a circular economy.
+
         This tool allows architects to utilize BIM technology to analyze their designs, helping to assess the deconstruction potential and the end-of-life impact of their buildings. Dung Beetle also provides access to IFC models of parts for potential reuse, integrating them seamlessly into the planning process and easing the search for reusable components.
-        
-        By transitioning from the conventional 'take, make, dispose' model to the more sustainable 'make, use, recycle' approach, Dung Beetle is a valuable aid for architects and builders seeking to reduce the environmental impact of their projects. Join us in using Dung Beetle to tackle the demolition waste problem and contribute to building a more sustainable future.
-        
+
+        By transitioning from the conventional 'take, make, dispose' model to the more sustainable 'make, use, recycle, re-use' approach, Dung Beetle is a valuable aid for architects and builders seeking to reduce the environmental impact of their projects. Join us in using Dung Beetle to tackle the demolition waste problem and contribute to building a more sustainable future.
+
+        If you're an architect, builder, or involved in a construction project that might be intended for demolition in the coming decade, your contribution can be crucial to our research. Whether your project was planned using ArchiCAD or you have available IFC data, we are interested.
+
+        Help us discover your project's reuse potential and contribute to a more sustainable construction industry. Please contact us at **piotr.piotrowski@uni.li** to participate or for further details. Your involvement can make a significant difference in addressing the construction waste problem.
+
+
         """
         )
 
