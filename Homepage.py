@@ -71,7 +71,7 @@ def main():
     with col1:
         st.markdown(
             """
-            In the construction industry, especially in developed countries like the EU, USA, Australia, China, and Switzerland, demolition waste poses a significant problem. It forms the largest waste stream, amplifying the urgency for more sustainable approaches to building and demolition. It is this pressing issue that Dung Beetle aims to tackle.
+            In the construction industry demolition waste poses a significant problem. It forms the largest waste stream in Switzerland, EU, US, Australia and China, amplifying the urgency for more sustainable approaches to building and demolition. It is this pressing issue that Dung Beetle aims to tackle.
 
         Welcome to Dung Beetle, a web application developed under the auspices of the **University of Liechtenstein**, that offers an innovative solution for addressing the global waste issue in the construction industry. Spearheaded by Piotr Piotrowski and supervised by Prof. Daniel Stockhammer and Prof. Andreas Putz, Dung Beetle leverages Building Information Modelling (BIM) to promote a shift from a linear to a circular economy.
 
