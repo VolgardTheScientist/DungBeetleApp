@@ -68,19 +68,24 @@ const button = document.createElement("button");
 button_container.appendChild(button);
 button.textContent = "Download IFC";
 button.onclick = () => {
-  fetch(fileUrl)
-      .then(response => response.blob())
-      .then(blob => {
-          const href = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = href;
-          link.download = 'reuse_component.ifc';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-      })
-      .catch(console.error);
+    if (fileUrl !== '') {
+        fetch(fileUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                const href = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = href;
+                link.download = 'reuse_component.ifc';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch(console.error);
+    } else {
+        console.log("No file URL has been passed from Python.")
+    }
 };
+
 
 // Hook things up!
 window.addEventListener("message", onDataFromPython);
