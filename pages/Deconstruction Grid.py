@@ -307,7 +307,7 @@ def execute():
     st.title("Dung Beetle Deconstruction Grid")
     st.write(
         """Upload your IFC project data to review your deconstruction and material recovery potential. Remember to assign Connection Types to your building components. 
-        """
+        """   
 )
     
     session["Dataframe"] = get_ifc_pandas()
@@ -397,6 +397,11 @@ else:
     st.title("Dung Beetle Deconstruction Grid")
     st.write(
         """Upload your IFC project data to review your deconstruction and material recovery potential. Remember to assign Connection Types to your building components. 
+        """
+)
+    st.markdown(
+        """
+        Please note: at this time only <strong>IFC 4 Reference View</strong> files can be analysed)
         """
 )
 
