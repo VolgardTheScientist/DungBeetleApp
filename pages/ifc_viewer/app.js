@@ -85,7 +85,7 @@ for (const plan of allPlans) {
     console.log(currentPlan);
 
     const buttonPlan = document.createElement('button');
-    container.appendChild(button);
+    container.appendChild(buttonPlan);
     buttonPlan.textContent = currentPlan.name;
     buttonPlan.onclick = () => {
         viewer.plans.goTo(model.modelID, plan);
@@ -94,7 +94,7 @@ for (const plan of allPlans) {
 }
 
 const buttonExit = document.createElement('button');
-container.appendChild(button);
+container.appendChild(buttonExit);
 buttonExit.textContent = 'Exit';
 buttonExit.onclick = () => {
     viewer.plans.exitPlanView();
