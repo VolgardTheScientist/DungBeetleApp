@@ -164,6 +164,31 @@ def AgGrid_with_display_rules(df):
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
 
+def search_google_for_selected_row(sel_row):
+    """
+    Function to generate a Google search URL from the values of the selected row
+    and create a button in the Streamlit sidebar to open the URL in a new tab.
+    """
+    
+    # Retrieve values from the selected row
+    manufacturer = sel_row.get('Manufacturer', '')
+    model = sel_row.get('Model', '')
+    article_number = sel_row.get('Article number', '')
+    
+    # Construct the Google search URL
+    base_url = "https://www.google.com/search?q="
+    search_terms = f"{manufacturer}+{model}+{article_number}"
+    google_url = base_url + search_terms
+
+    # Create a button in the Streamlit sidebar
+    if st.sidebar.button("Search Google"):
+        # This will open the Google search URL in a new tab.
+        # Note: This uses a small JavaScript hack as Streamlit
+        # doesn't natively support opening links in new tabs.
+        st.markdown(f'<a href="{google_url}" target="_blank">Click here if not redirected</a>', unsafe_allow_html=True)
+        st.write(f'<script>window.open("{google_url}");</script>', unsafe_allow_html=True)
+
+
 def create_user_interface():
     for df_name, df in dataframes.items():
         if tab_map.get(df_name, df_name) == selected_tab:
@@ -211,6 +236,9 @@ def create_user_interface():
                         # Upload the IFC data to Google Cloud Storage
                         url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                         url = url_to_ifc_file
+                
+                # Add google search facility:
+                search_google_for_selected_row(sel_row)
 
             # Call the IFC viewer function
             with col2:
