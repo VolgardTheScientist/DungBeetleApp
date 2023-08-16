@@ -178,8 +178,11 @@ def search_google_for_selected_row(sel_row_list):
     
     # Extract required values
     manufacturer = sel_row_data['Manufacturer']
+    st.write(manufacturer)
     model = sel_row_data['Model']
+    st.write(model)
     article_number = sel_row_data['Article number']
+    st.write(article_number)
      
     # Construct the Google search URL
     base_url = "https://www.google.com/search?q="
