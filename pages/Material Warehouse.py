@@ -150,7 +150,7 @@ def get_binary_file_downloader_link(file_path, file_label):
 
 def AgGrid_with_display_rules(df):
     gd = GridOptionsBuilder.from_dataframe(df)
-    gd.configure_pagination(enabled=True,paginationAutoPageSize=False,paginationPageSize=3)
+    gd.configure_pagination(enabled=False,paginationAutoPageSize=False,paginationPageSize=3)
     gd.configure_default_column(editable=False, groupable=True)
     gd.configure_selection(selection_mode='multiple', use_checkbox=True)
     gridoptions = gd.build()
