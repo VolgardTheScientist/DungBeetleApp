@@ -171,14 +171,15 @@ def search_google_for_selected_row(sel_row_list):
     """
     
     # Assuming sel_row_list[0] gives us the dictionary for the selected row
-    st.write(sel_row_list.dtypes)
     st.write(sel_row_list)
 
+    # Extract the dictionary from the list
     sel_row_data = sel_row_list[0]
     
-    manufacturer = sel_row_data.get('Manufacturer', '')
-    model = sel_row_data.get('Model', '')
-    article_number = sel_row_data.get('Article number', '')
+    # Extract required values
+    manufacturer = sel_row_data['Manufacturer']
+    model = sel_row_data['Model']
+    article_number = sel_row_data['Article number']
      
     # Construct the Google search URL
     base_url = "https://www.google.com/search?q="
