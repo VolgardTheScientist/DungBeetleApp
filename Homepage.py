@@ -114,10 +114,12 @@ def main():
 
     with st.expander("See environment details"):
         ifcPenShellVersion = pkg_resources.get_distribution("ifcopenshell").version
+        agGridVersion = pkg_resources.get_distribution("streamlit-aggrid").version
         st.write("Pandas: ", pd.__version__)
         st.write("Streamlit: ", st.__version__)
         st.write("Numpy: ", np.__version__)
         st.write("IfcOpenShell: ", ifcPenShellVersion)
+        st.write("AGgrid: ", agGridVersion)
 
 
     #uploaded_file = st.sidebar.file_uploader("Choose a file", type="ifc", key="uploaded_file", on_change=callback_upload)
