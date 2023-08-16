@@ -11,6 +11,7 @@ from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import json
+import urllib.parse
 
 st.set_page_config(layout="wide")
 st.title("Digital material warehouse")
@@ -164,26 +165,27 @@ def AgGrid_with_display_rules(df):
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
 
+import urllib.parse
+
 def search_google_for_selected_row(sel_row_list):
     """
     Function to generate a Google search URL from the values of the selected row
     and create a button in the Streamlit sidebar to open the URL in a new tab.
     """
     
-    # Assuming sel_row_list[0] gives us the dictionary for the selected row
-    st.write(sel_row_list)
-
+    # Check if the list is not empty
+    if not sel_row_list:
+        st.sidebar.warning("No row selected!")
+        return
+    
     # Extract the dictionary from the list
     sel_row_data = sel_row_list[0]
     
-    # Extract required values
-    manufacturer = sel_row_data['Manufacturer']
-    st.write(manufacturer)
-    model = sel_row_data['Model']
-    st.write(model)
-    article_number = sel_row_data['Article number']
-    st.write(article_number)
-     
+    # Extract and URL-encode required values
+    manufacturer = urllib.parse.quote_plus(sel_row_data['Manufacturer'])
+    model = urllib.parse.quote_plus(sel_row_data['Model'])
+    article_number = urllib.parse.quote_plus(sel_row_data['Article number'])
+
     # Construct the Google search URL
     base_url = "https://www.google.com/search?q="
     search_terms = f"{manufacturer}+{model}+{article_number}"
@@ -192,10 +194,9 @@ def search_google_for_selected_row(sel_row_list):
     # Create a button in the Streamlit sidebar
     if st.sidebar.button("Search Google"):
         # This will open the Google search URL in a new tab.
-        # Note: This uses a small JavaScript hack as Streamlit
-        # doesn't natively support opening links in new tabs.
         st.markdown(f'<a href="{google_url}" target="_blank">Click here if not redirected</a>', unsafe_allow_html=True)
         st.write(f'<script>window.open("{google_url}");</script>', unsafe_allow_html=True)
+
 
 
 def create_user_interface():
