@@ -238,7 +238,27 @@ def create_user_interface():
                 if 'Global ID' in sel_row_for_map.columns:
                     input_guid = sel_row_for_map['Global ID'].iloc[0]
 
-                if st.button("Preview"):
+                button_style = (
+                    "background-color: white; "
+                    "color: #ff4b4b; "
+                    "border: 1px solid #ff4b4b; "
+                    "padding: 0.25rem 0.75rem; "
+                    "font-weight: 400; "
+                    "font-family: 'Source Sans Pro', sans-serif; "
+                    "font-size: 1rem; "
+                    "text-align: center; "
+                    "text-decoration: none; "
+                    "display: inline-block; "
+                    "margin: 1rem 1rem; "
+                    "cursor: pointer; "
+                    "border-radius: 0.5rem; "
+                    "min-height: 38.4px;"
+                )
+
+                if st.sidebar.markdown(
+                    f'<a href="#" style="{button_style}">Preview</a>',
+                    unsafe_allow_html=True
+                ):
                     if input_file_name and input_guid:
                         new_ifc_file_str, new_ifc_file_name = download_product_by_guid(input_file_name, input_guid)
 
