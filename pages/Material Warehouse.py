@@ -191,11 +191,11 @@ def search_google_for_selected_row(sel_row_list):
     base_url = "https://www.google.com/search?q="
     google_url = base_url + search_terms
 
-    # Create a button in the Streamlit sidebar
-    if st.sidebar.button("Search Google"):
-        # This will open the Google search URL in a new tab.
-        st.markdown(f'<a href="{google_url}" target="_blank">Click here if not redirected</a>', unsafe_allow_html=True)
-        st.write(f'<script>window.open("{google_url}");</script>', unsafe_allow_html=True)
+    # Create a button-styled link in the Streamlit sidebar
+    st.sidebar.markdown(
+        f'<a href="{google_url}" target="_blank" style="display: inline-block; padding: 12px 20px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; font-size: 16px; border-radius: 4px;">Search Google</a>',
+        unsafe_allow_html=True
+    )
 
 
 def create_user_interface():
