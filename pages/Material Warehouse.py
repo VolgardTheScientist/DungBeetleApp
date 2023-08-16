@@ -156,7 +156,7 @@ def AgGrid_with_display_rules(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        height=400,
+                        height=600,
                         allow_unsafe_jscode=True
                         )
     sel_row = grid_table["selected_rows"]
