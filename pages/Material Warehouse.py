@@ -156,7 +156,7 @@ def AgGrid_with_display_rules(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        height=500,
+                        height=400,
                         allow_unsafe_jscode=True
                         )
     sel_row = grid_table["selected_rows"]
@@ -168,8 +168,9 @@ def create_user_interface():
     for df_name, df in dataframes.items():
         if tab_map.get(df_name, df_name) == selected_tab:
             st.write('Filter the database below to find suitable product and to download the IFC digital product representation')
-            grid_table, sel_row = AgGrid_with_display_rules(df)
-            sel_row_for_map = pd.DataFrame(sel_row)
+            with st.container():
+                grid_table, sel_row = AgGrid_with_display_rules(df)
+                sel_row_for_map = pd.DataFrame(sel_row)
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
