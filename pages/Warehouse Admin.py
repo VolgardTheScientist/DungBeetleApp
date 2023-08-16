@@ -26,7 +26,7 @@ st.write("")
 # Display the download link in the Streamlit sidebar
 with st.sidebar:
     with st.expander("Dung Beetle - user manual"):
-        st.write("To upload your BIM project into the Dung Beetle Warehouse use the settings from attached ArchiCAD template. At this stage ArchiCAD 26 is supported, templates for other BIM programms and previous ArchiCAD versions are planned for future releases.")
+        st.write("To upload your BIM project into the Dung Beetle Warehouse use the settings from the attached ArchiCAD template. At this stage ArchiCAD 26 is supported, templates for other BIM programms and previous ArchiCAD versions are planned for future releases.")
         st.markdown("[Download ArchiCAD template](https://storage.googleapis.com/dungbeetle_media/DungBeetleMaterialWarehouseTemplateAC26.tpl)")
 
 # ========== Create a Google Cloud Storage client ==========
