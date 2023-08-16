@@ -36,7 +36,7 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 def check_password(password_input):
-    correct_password = st.secrets["password"]
+    correct_password = st.secrets["ADMIN_CREDENTIALS"]["password"]
     if password_input == correct_password:
         return True
     return False
