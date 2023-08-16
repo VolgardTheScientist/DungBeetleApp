@@ -179,10 +179,10 @@ def search_google_for_selected_row(sel_row_list):
     # Extract the dictionary from the list
     sel_row_data = sel_row_list[0]
 
-    # Extract and URL-encode required values
-    manufacturer = urllib.parse.quote_plus(sel_row_data['Manufacturer']) if sel_row_data['Manufacturer'] else ''
-    model = urllib.parse.quote_plus(sel_row_data['Model']) if sel_row_data['Model'] else ''
-    article_number = urllib.parse.quote_plus(sel_row_data['Article number']) if sel_row_data['Article number'] else ''
+    # Extract and URL-encode required values if they exist in the dictionary
+    manufacturer = urllib.parse.quote_plus(sel_row_data.get('Manufacturer', '')) if sel_row_data.get('Manufacturer') else ''
+    model = urllib.parse.quote_plus(sel_row_data.get('Model', '')) if sel_row_data.get('Model') else ''
+    article_number = urllib.parse.quote_plus(sel_row_data.get('Article number', '')) if sel_row_data.get('Article number') else ''
 
     # Only add terms that are non-empty to the search string
     search_terms = '+'.join(filter(None, [manufacturer, model, article_number]))
@@ -196,7 +196,6 @@ def search_google_for_selected_row(sel_row_list):
         # This will open the Google search URL in a new tab.
         st.markdown(f'<a href="{google_url}" target="_blank">Click here if not redirected</a>', unsafe_allow_html=True)
         st.write(f'<script>window.open("{google_url}");</script>', unsafe_allow_html=True)
-
 
 
 def create_user_interface():
