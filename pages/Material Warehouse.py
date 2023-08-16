@@ -255,7 +255,7 @@ def create_user_interface():
                 )
 
                 if st.sidebar.markdown(
-                    f'<a href="#" style="{button_style}">3D model preview</a>',
+                    f'<a href="#" style="{button_style}"></a>',
                     unsafe_allow_html=True
                 ):
                     if input_file_name and input_guid:
