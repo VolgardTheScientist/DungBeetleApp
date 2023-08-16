@@ -156,10 +156,15 @@ def AgGrid_with_display_rules(df):
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        height=600,
+                        height=400,
                         allow_unsafe_jscode=True
                         )
     sel_row = grid_table["selected_rows"]
+    custom_css={
+        "#gridToolBar": {
+            "padding-bottom": "0px !important",
+        }
+    }
     return grid_table, sel_row
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
