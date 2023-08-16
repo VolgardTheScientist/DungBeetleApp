@@ -75,8 +75,8 @@ column_map = {
     'QuantitySets.ArchiCADQuantities.Width': 'Width',
     'QuantitySets.ArchiCADQuantities.Height': 'Height',
     'PropertySets.Pset_ManufacturerTypeInformation.ProductionYear': 'Production year',
-    'PropertySets.D4D.Connection_type': 'Connection type',
-    'PropertySets.D4D.Planned_deconstruction_date': 'Approx. availability date',
+    'PropertySets.D4D.10_Connection_type': 'Connection type',
+    'PropertySets.D4D.50_Planned_decosntruction_date': 'Approx. availability date',
     'Global ID': 'Global ID',
     'Project ID': 'Project ID',
     'Town': 'Town',
@@ -150,7 +150,7 @@ def get_binary_file_downloader_link(file_path, file_label):
 
 def AgGrid_with_display_rules(df):
     gd = GridOptionsBuilder.from_dataframe(df)
-    gd.configure_pagination(enabled=True,paginationAutoPageSize=False,paginationPageSize=3)
+    gd.configure_pagination(enabled=True)
     gd.configure_default_column(editable=False, groupable=True)
     gd.configure_selection(selection_mode='multiple', use_checkbox=True)
     gridoptions = gd.build()
