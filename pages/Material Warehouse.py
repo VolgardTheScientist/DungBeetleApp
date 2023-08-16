@@ -193,7 +193,7 @@ def search_google_for_selected_row(sel_row_list):
 
     # Create a button-styled link in the Streamlit sidebar
     st.sidebar.markdown(
-        f'<a href="{google_url}" target="_blank" style="display: inline-block; padding: 12px 20px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; font-size: 16px; border-radius: 4px;">Search Google</a>',
+        f'<a href="{google_url}" target="_blank" style="display: inline-block; padding: 12px 20px; background-color: ##ff4b4b; color: white; text-align: center; text-decoration: none;">Search Google for product data</a>',
         unsafe_allow_html=True
     )
 
