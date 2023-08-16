@@ -165,8 +165,6 @@ def AgGrid_with_display_rules(df):
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
 
-import urllib.parse
-
 def search_google_for_selected_row(sel_row_list):
     """
     Function to generate a Google search URL from the values of the selected row
@@ -175,20 +173,22 @@ def search_google_for_selected_row(sel_row_list):
     
     # Check if the list is not empty
     if not sel_row_list:
-        st.sidebar.warning("No row selected!")
+        st.sidebar.warning("Please select a product from the Warehouse")
         return
     
     # Extract the dictionary from the list
     sel_row_data = sel_row_list[0]
-    
+
     # Extract and URL-encode required values
-    manufacturer = urllib.parse.quote_plus(sel_row_data['Manufacturer'])
-    model = urllib.parse.quote_plus(sel_row_data['Model'])
-    article_number = urllib.parse.quote_plus(sel_row_data['Article number'])
+    manufacturer = urllib.parse.quote_plus(sel_row_data['Manufacturer']) if sel_row_data['Manufacturer'] else ''
+    model = urllib.parse.quote_plus(sel_row_data['Model']) if sel_row_data['Model'] else ''
+    article_number = urllib.parse.quote_plus(sel_row_data['Article number']) if sel_row_data['Article number'] else ''
+
+    # Only add terms that are non-empty to the search string
+    search_terms = '+'.join(filter(None, [manufacturer, model, article_number]))
 
     # Construct the Google search URL
     base_url = "https://www.google.com/search?q="
-    search_terms = f"{manufacturer}+{model}+{article_number}"
     google_url = base_url + search_terms
 
     # Create a button in the Streamlit sidebar
