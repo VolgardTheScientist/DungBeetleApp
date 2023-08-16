@@ -164,17 +164,19 @@ def AgGrid_with_display_rules(df):
 
 # Note we can use theme="balham" toas AgGrid argument past the allow_unsafe to change colours
 
-def search_google_for_selected_row(sel_row):
+def search_google_for_selected_row(sel_row_list):
     """
     Function to generate a Google search URL from the values of the selected row
     and create a button in the Streamlit sidebar to open the URL in a new tab.
     """
     
-    # Retrieve values from the selected row
-    manufacturer = sel_row.get('Manufacturer', '')
-    model = sel_row.get('Model', '')
-    article_number = sel_row.get('Article number', '')
+    # Assuming sel_row_list[0] gives us the dictionary for the selected row
+    sel_row_data = sel_row_list[0]
     
+    manufacturer = sel_row_data.get('Manufacturer', '')
+    model = sel_row_data.get('Model', '')
+    article_number = sel_row_data.get('Article number', '')
+     
     # Construct the Google search URL
     base_url = "https://www.google.com/search?q="
     search_terms = f"{manufacturer}+{model}+{article_number}"
