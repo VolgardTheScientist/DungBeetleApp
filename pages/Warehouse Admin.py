@@ -23,6 +23,12 @@ st.markdown("""<p>Welcome to the Dung Beetle digital material warehouse administ
     <p>Support for files in IFC 2x3 as well as project address update via Dung Beetle is currently under development.</p>""", unsafe_allow_html=True)
 st.write("")
 
+# Display the download link in the Streamlit sidebar
+with st.sidebar:
+    with st.expander("Dung Beetle - user manual"):
+        st.write("To upload your BIM project into the Dung Beetle Warehouse use the settings from attached ArchiCAD template. At this ArchiCAD 26 is supported, templates for other BIM programms are planned for future releases.")
+        st.markdown("[Download ArchiCAD template](https://storage.googleapis.com/dungbeetle_media/DungBeetleMaterialWarehouseTemplateAC26.tpl)")
+
 # ========== Create a Google Cloud Storage client ==========
 
 credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
