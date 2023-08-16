@@ -171,7 +171,9 @@ def search_google_for_selected_row(sel_row_list):
     """
     
     # Assuming sel_row_list[0] gives us the dictionary for the selected row
+    st.write(sel_row_list.dtypes)
     st.write(sel_row_list)
+
     sel_row_data = sel_row_list[0]
     
     manufacturer = sel_row_data.get('Manufacturer', '')
