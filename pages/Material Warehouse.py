@@ -249,14 +249,13 @@ def create_user_interface():
                     "text-align: center; "
                     "text-decoration: none; "
                     "display: inline-block; "
-                    "margin: 1rem 1rem; "
                     "cursor: pointer; "
                     "border-radius: 0.5rem; "
                     "min-height: 38.4px;"
                 )
 
                 if st.sidebar.markdown(
-                    f'<a href="#" style="{button_style}">Preview</a>',
+                    f'<a href="#" style="{button_style}">3D model preview</a>',
                     unsafe_allow_html=True
                 ):
                     if input_file_name and input_guid:
