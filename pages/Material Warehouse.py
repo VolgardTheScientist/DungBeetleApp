@@ -239,19 +239,7 @@ def create_user_interface():
                     input_guid = sel_row_for_map['Global ID'].iloc[0]
 
                 button_style = (
-                    "background-color: white; "
-                    "color: #ff4b4b; "
-                    "border: 1px solid #ff4b4b; "
-                    "padding: 0.25rem 0.75rem; "
-                    "font-weight: 400; "
-                    "font-family: 'Source Sans Pro', sans-serif; "
-                    "font-size: 1rem; "
-                    "text-align: center; "
-                    "text-decoration: none; "
-                    "display: inline-block; "
-                    "cursor: pointer; "
-                    "border-radius: 0.5rem; "
-                    "min-height: 38.4px;"
+                    "display: none; "
                 )
 
                 if st.sidebar.markdown(
