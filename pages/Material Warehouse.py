@@ -158,7 +158,12 @@ def AgGrid_with_display_rules(df):
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
                         height=400,
-                        allow_unsafe_jscode=True
+                        allow_unsafe_jscode=True,
+                        custom_css={
+                            "#gridToolBar": {
+                            "padding-bottom": "0px !important",
+                                 }
+                            }
                         )
     sel_row = grid_table["selected_rows"]
     return grid_table, sel_row
@@ -242,6 +247,7 @@ def create_user_interface():
                     "display: none; "
                 )
 
+                # if st.button("Preview") - this requires end-user to activate preview by clicking:
                 if st.sidebar.markdown(
                     f'<a href="#" style="{button_style}"></a>',
                     unsafe_allow_html=True
