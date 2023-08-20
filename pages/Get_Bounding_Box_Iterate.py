@@ -177,29 +177,28 @@ def get_footprint_perimeter(geometry):
     return sum([np.linalg.norm(vertices[e[0]] - vertices[e[1]]) for e in (all_edges - shared_edges)])
 
 # Streamlit App
-def process_ifc_element(element, settings):
+def process_ifc_element(ifc_entity, geometry):
     try:
-        representation = element.Representation.Representations[0]
-        geometry = ifcopenshell.geom.create_shape(settings, representation)
-
-        x_dim = get_x(geometry)
+        x_dim = get_x(geometry)  # Implement your own get_x, get_y, get_z
         y_dim = get_y(geometry)
         z_dim = get_z(geometry)
 
         return {
-            "GlobalId": element.GlobalId,
-            "Type": element.is_a(),
+            "GlobalId": ifc_entity.GlobalId,
+            "Type": ifc_entity.is_a(),
             "X": x_dim,
             "Y": y_dim,
             "Z": z_dim
         }
     except Exception as e:
-        st.warning(f"Failed to process {element.GlobalId} due to {str(e)}")
+        st.warning(f"Failed to process {ifc_entity.GlobalId} due to {str(e)}")
         return None
 
 def main():
-    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+    st.title("IFC File Processor")
 
+    # Load your IFC file
+    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
     if uploaded_file:
         tfile = tempfile.NamedTemporaryFile(delete=False)
         tfile.write(uploaded_file.read())
@@ -207,18 +206,31 @@ def main():
 
         settings = ifcopenshell.geom.settings()
 
+        # Initialize the iterator
+        iterator = ifcopenshell.geom.iterate(settings, ifc_file)
 
-        results = []
-        for element in ifc_file.by_type("IfcElement"):
-            result = process_ifc_element(element, settings)
-            if result:
-                results.append(result)
+        for shape in iterator:
+            st.write("Inspecting shape object:")
+            for attribute in dir(shape):
+                if not attribute.startswith("__"):
+                    st.write(f"{attribute}: {getattr(shape, attribute)}")
 
-        df = pd.DataFrame(results)
-        st.write(df)
+            ifc_entity = shape.product  # This seems to be the IfcProduct (e.g., IfcWall, IfcSlab)
+            geometry = shape.geometry  # This seems to be the geometry
+
+            st.write(f"Processing IFC Entity: {ifc_entity.is_a()}, GlobalId: {ifc_entity.GlobalId}")
+
+            # Access vertices and faces
+            vertices = geometry.verts
+            faces = geometry.faces
+
+            st.write(f"Vertices: {vertices}")
+            st.write(f"Faces: {faces}")
+
+            processed_data = process_ifc_element(ifc_entity, geometry)
+
+            if processed_data:
+                st.write("Processed Data:", processed_data)
 
 if __name__ == "__main__":
     main()
-
-
-
