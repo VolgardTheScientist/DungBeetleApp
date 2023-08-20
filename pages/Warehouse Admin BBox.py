@@ -296,7 +296,7 @@ def main_app():
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
                 st.write("Columns in generated_df: ", generated_df.columns)
                 st.write("Columns in dimensions_df: ", dimensions_df.columns)
-                generated_df = pd.merge(generated_df, dimensions_df, how='left', on='GlobalId')
+                generated_df = pd.merge(generated_df, dimensions_df, how='left', on='Global ID')
                 # DEBUG: st.write(generated_df)
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
