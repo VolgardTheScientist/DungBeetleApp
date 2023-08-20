@@ -285,6 +285,8 @@ def main_app():
             local_filename = download_from_bucket(blob_name)
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
             dimensions_df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
+            # Debug dimnsions_df
+            st.write(dimensions_df)
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
