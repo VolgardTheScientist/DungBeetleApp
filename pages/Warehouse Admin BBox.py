@@ -285,8 +285,7 @@ def main_app():
             local_filename = download_from_bucket(blob_name)
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
             dimensions_df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
-            # Debug dimnsions_df
-            st.write(dimensions_df)
+            # DEBUG: st.write(dimensions_df)
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
@@ -295,6 +294,7 @@ def main_app():
                 # DEBUG: st.write(warehouse_data)
                 # DEBUG: st.text(type(warehouse_data))
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
+                generated_df = pd.merge(generated_df, dimensions_df, how='left', on='GlobalId')
                 # DEBUG: st.write(generated_df)
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
@@ -311,7 +311,6 @@ def main_app():
                 generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
                 # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
                 # DEBUG: st.write(generated_df)
-                generated_df = pd.merge(warehouse_data, dimensions_df, how='left', on='GlobalId')
                 ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
             # Print the dataframes and provide download button
             for entity, generated_df in ifcEntity_dataframes.items():
