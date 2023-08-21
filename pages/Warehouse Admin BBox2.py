@@ -283,6 +283,29 @@ def multiply_and_round(df):
     return df
 
 
+def add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities):
+    with st.spinner("Extracting data from IFC..."):
+        dimensions_df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
+
+        # Get the length unit and its conversion factor
+        length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
+        # length_unit = get_length_unit(ifc_file)
+
+        # Append the conversion factor to the dataframe
+        dimensions_df["Conversion_factor"] = [conversion_factor] * len(dimensions_df)
+        dimensions_df = multiply_and_round(dimensions_df)
+        rename_columns(dimensions_df)
+
+        st.dataframe(dimensions_df)
+
+        # Display the length unit and potentially a warning
+        if length_unit:
+            st.write(f"The model was created using units of: {length_unit}")
+            if conversion_factor == 1 and length_unit not in ["METER", "MILIMETER", "CENTIMETER"]:
+                st.warning("No SI unit defined in this project.")
+        else:
+            st.write("Could not determine the length unit used in the model.")
+
 # ========== Create main App ==========
 
 def main_app():
@@ -324,29 +347,6 @@ def main_app():
             # Download the file back from the bucket to a local file
             local_filename = download_from_bucket(blob_name)
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
-
-            with st.spinner("Extracting data from IFC..."):
-                dimensions_df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
-
-                # Get the length unit and its conversion factor
-                length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
-                # length_unit = get_length_unit(ifc_file)
-
-                # Append the conversion factor to the dataframe
-                dimensions_df["Conversion_factor"] = [conversion_factor] * len(dimensions_df)
-                dimensions_df = multiply_and_round(dimensions_df)
-                rename_columns(dimensions_df)
-
-                st.dataframe(dimensions_df)
-
-                # Display the length unit and potentially a warning
-                if length_unit:
-                    st.write(f"The model was created using units of: {length_unit}")
-                    if conversion_factor == 1 and length_unit not in ["METER", "MILIMETER", "CENTIMETER"]:
-                        st.warning("No SI unit defined in this project.")
-                else:
-                    st.write("Could not determine the length unit used in the model.")
-
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
@@ -372,6 +372,10 @@ def main_app():
                 # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
                 # DEBUG: st.write(generated_df)
                 ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
+            
+            #Get IfcBoundingBox dimensions:
+            add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)      
+            
             # Print the dataframes and provide download button
             for entity, generated_df in ifcEntity_dataframes.items():
                 st.write(f"{entity}:")
