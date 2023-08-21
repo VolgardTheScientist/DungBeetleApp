@@ -238,7 +238,8 @@ def rename_columns(df):
     return df
 
 # Function to multiply and round columns
-def multiply_and_round(df, columns_to_multiply):
+def multiply_and_round(df):
+    columns_to_multiply = ['X', 'Y', 'Z']
     for col in columns_to_multiply:
         df[col] = (df[col] * df['Conversion_factor']).round(1)
     return df
@@ -294,9 +295,11 @@ def main_app():
                 # DEBUG: st.write(warehouse_data)
                 # DEBUG: st.text(type(warehouse_data))
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
-                st.write("Columns in generated_df: ", generated_df.columns)
-                st.write("Columns in dimensions_df: ", dimensions_df.columns)
+                # DEBUG: st.write("Columns in generated_df: ", generated_df.columns)
+                # DEBUG: st.write("Columns in dimensions_df: ", dimensions_df.columns)
                 generated_df = pd.merge(generated_df, dimensions_df, how='left', on='Global ID')
+                multiply_and_round(generated_df)
+                rename_columns(generated_df)
                 # DEBUG: st.write(generated_df)
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
