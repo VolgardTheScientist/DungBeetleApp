@@ -228,6 +228,14 @@ def get_length_unit_and_conversion_factor(ifc_file):
     
     return None, 1  # Defaulting to a conversion factor of 1 if no matching SI unit is found
 
+def display_model_unit_add_convertion_factor(length_unit, conversion_factor):
+    if length_unit:
+        st.write(f"The model was created using units of: {length_unit}")
+        if conversion_factor == 1 and length_unit not in ["METER", "MILIMETER", "CENTIMETER"]:
+            st.warning("No SI unit defined in this project.")
+    else:
+        st.write("Could not determine the length unit used in the model.")
+
 def rename_columns(df):
     new_column_names = {
         'X': 'Length_[cm]',
@@ -298,7 +306,10 @@ def main_app():
                 # DEBUG: st.write("Columns in generated_df: ", generated_df.columns)
                 # DEBUG: st.write("Columns in dimensions_df: ", dimensions_df.columns)
                 generated_df = pd.merge(generated_df, dimensions_df, how='left', on='Global ID')
-                multiply_and_round(generated_df)
+                length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
+                display_model_unit_add_convertion_factor(length_unit, conversion_factor)
+                generated_df["Conversion_factor"] = [conversion_factor] * len(generated_df)
+                generated_df = multiply_and_round(generated_df)
                 rename_columns(generated_df)
                 # DEBUG: st.write(generated_df)
                 generated_df['Building ID'] = building_ID
