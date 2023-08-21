@@ -312,6 +312,8 @@ def main_app():
 
     # ========== DataFrame Generator from IFC ==========
 
+    # just checking what is going on 
+
     IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
 
     ifcEntity_dataframes = {}
