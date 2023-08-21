@@ -258,7 +258,7 @@ def get_length_unit_and_conversion_factor(ifc_file):
 # Function to multiply and round columns
 def multiply_and_round(df):
     # List of columns to multiply
-    columns_to_multiply = ['X', 'Y', 'Z']   
+    columns_to_multiply = ["Length_[cm]", "Width_[cm]", "Height_[cm]"]   
     for col in columns_to_multiply:
         df[col] = (df[col] * df['Conversion_factor']).round(1)
     return df
@@ -311,8 +311,6 @@ def main_app():
   
 
     # ========== DataFrame Generator from IFC ==========
-
-    # just checking what is going on 
 
     IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
 
