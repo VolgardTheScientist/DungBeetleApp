@@ -305,6 +305,22 @@ def add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcE
                 st.warning("No SI unit defined in this project.")
         else:
             st.write("Could not determine the length unit used in the model.")
+        return dimensions_df
+
+def merge_dimensions_with_generated_df(dimensions_df):
+    if dimensions_df.empty:
+        # If dimensions_df is empty, append empty columns to generated_df
+        for col in ['Length_[cm]', 'Width_[cm]', 'Height_[cm]']:
+            generated_df[col] = None
+    else:
+        # Merge generated_df with dimensions_df based on "Global ID"
+        generated_df = pd.merge(
+            generated_df,
+            dimensions_df,
+            on='Global ID',
+            how='left'
+        )
+
 
 # ========== Create main App ==========
 
@@ -375,7 +391,8 @@ def main_app():
                 ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
             
             #Get IfcBoundingBox dimensions:
-            add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)      
+            dimensions_df = add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)
+            merge_dimensions_with_generated_df(dimensions_df)      
             
             # Print the dataframes and provide download button
             for entity, generated_df in ifcEntity_dataframes.items():
