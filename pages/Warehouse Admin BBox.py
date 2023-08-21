@@ -208,8 +208,15 @@ def extract_dimensions_from_ifc(ifc_file, target_entities):
                                 y = item.YDim
                                 z = item.ZDim
                                 data.append([name, global_id, x, y, z])
-                            
-    return pd.DataFrame(data, columns=["Name", "Global ID", "X", "Y", "Z"])
+    
+    df = pd.DataFrame(data, columns=["Name", "Global ID", "X", "Y", "Z"])
+
+    # Check if 'Global ID' exists in df, if not add it
+    if 'Global ID' not in df.columns:
+        df['Global ID'] = None  # or some default value
+    
+    return df
+
 
 
 def get_length_unit_and_conversion_factor(ifc_file):
