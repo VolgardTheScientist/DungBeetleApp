@@ -208,27 +208,27 @@ def merge_dataframes():
 # ========== Get IfcBoundingBox dimensions ==========
 
 
-def extract_dimensions_from_ifc(ifc_file):
-
+def extract_dimensions_from_ifc(ifc_file, target_entities):
     data = []
 
-    # Get all entities of type IfcElement
-    all_elements = ifc_file.by_type("IfcElement")
+    for entity_type in target_entities:
+        elements = ifc_file.by_type(entity_type)
+        for element in elements:
+            if hasattr(element, "Representation"):
+                for rep in element.Representation.Representations:
+                    if rep.is_a("IfcShapeRepresentation"):
+                        for item in rep.Items:
+                            if item.is_a("IfcBoundingBox"):
+                                name = element.Name if element.Name else "N/A"
+                                global_id = element.GlobalId if element.GlobalId else "N/A"
+                                x = item.XDim
+                                y = item.YDim
+                                z = item.ZDim
+                                data.append([name, global_id, x, y, z])
     
-    for element in all_elements:
-        if hasattr(element, "Representation"):
-            for rep in element.Representation.Representations:
-                if rep.is_a("IfcShapeRepresentation"):
-                    for item in rep.Items:
-                        if item.is_a("IfcBoundingBox"):
-                            name = element.Name if element.Name else "N/A"
-                            global_id = element.GlobalId if element.GlobalId else "N/A"
-                            x = item.XDim
-                            y = item.YDim
-                            z = item.ZDim
-                            data.append([name, global_id, x, y, z])
-
-    return pd.DataFrame(data, columns=["Name", "GlobalId", "X", "Y", "Z"]), ifc_file
+    df = pd.DataFrame(data, columns=["Name", "Global ID", "X", "Y", "Z"])
+    
+    return df
 
 def get_length_unit_and_conversion_factor(ifc_file):
     # Fetch the IfcProject entity (assuming there's only one in the file)
