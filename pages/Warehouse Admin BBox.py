@@ -248,9 +248,17 @@ def rename_columns(df):
 # Function to multiply and round columns
 def multiply_and_round(df):
     columns_to_multiply = ['X', 'Y', 'Z']
+
+    # Loop through each column and row, skipping NaN and None values
     for col in columns_to_multiply:
-        df[col] = (df[col] * df['Conversion_factor']).round(1)
+        for idx, value in enumerate(df[col]):
+            conversion_factor = df.loc[idx, 'Conversion_factor']
+            
+            if value is not None and not np.isnan(value) and conversion_factor is not None and not np.isnan(conversion_factor):
+                df.loc[idx, col] = round(value * conversion_factor, 1)
+
     return df
+
 
 # ========== Create main App ==========
 
