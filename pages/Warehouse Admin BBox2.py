@@ -208,9 +208,7 @@ def merge_dataframes():
 # ========== Get IfcBoundingBox dimensions ==========
 
 
-def extract_dimensions_from_ifc(file_path):
-    # Parse the IFC file
-    ifc_file = ifcopenshell.open(file_path)
+def extract_dimensions_from_ifc(ifc_file):
 
     data = []
 
