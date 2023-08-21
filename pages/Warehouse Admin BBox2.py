@@ -307,7 +307,7 @@ def add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcE
             st.write("Could not determine the length unit used in the model.")
         return dimensions_df
 
-def merge_dimensions_with_generated_df(dimensions_df):
+def merge_dimensions_with_generated_df(dimensions_df, generated_df):
     if dimensions_df.empty:
         # If dimensions_df is empty, append empty columns to generated_df
         for col in ['Length_[cm]', 'Width_[cm]', 'Height_[cm]']:
@@ -367,7 +367,6 @@ def main_app():
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
-            generated_df = pd.DataFrame()
             for entity in IfcEntities:
                 warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
                 # DEBUG: st.write(warehouse_data)
@@ -393,7 +392,7 @@ def main_app():
             
             #Get IfcBoundingBox dimensions:
             dimensions_df = add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)
-            merge_dimensions_with_generated_df(dimensions_df)      
+            merge_dimensions_with_generated_df(dimensions_df, generated_df)      
             
             # Print the dataframes and provide download button
             for entity, generated_df in ifcEntity_dataframes.items():
