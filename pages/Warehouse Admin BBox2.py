@@ -329,105 +329,110 @@ def main_app():
     if uploaded_file:
         st.session_state["uploaded_ifc_file"] = uploaded_file
 
+    # ========== Stop page from rerunning ==========
+
+    if st.session_state["rerun_page"] == "yes":
+    # Expensive operations here, such as extract_dimensions_from_ifc
+
     # ========== DataFrame Generator from IFC ==========
 
-    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
-
-    ifcEntity_dataframes = {}
-    for entity in IfcEntities:
-        ifcEntity_dataframes["temp_" + entity] = pd.DataFrame()
-
-    # if st.session_state["rerun_page"] is not "no":
-    if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
+        IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
+    
+        ifcEntity_dataframes = {}
+        for entity in IfcEntities:
+            ifcEntity_dataframes["temp_" + entity] = pd.DataFrame()
+    
+        # if st.session_state["rerun_page"] is not "no":
+        if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "yes":
+            if uploaded_file is not None:
+                # Save the uploaded file to the bucket
+                blob_name = uploaded_file.name
+                save_to_bucket(uploaded_file, blob_name)
+                uploaded_file.seek(0)  # Add this line
+                # Download the file back from the bucket to a local file
+                local_filename = download_from_bucket(blob_name)
+                ifc_file_admin_upload = ifcopenshell.open(local_filename)
+                # Get the project address
+                building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
+                # Loop through the IfcEntities and append data to the respective dataframe
+                for entity in IfcEntities:
+                    warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
+                    # DEBUG: st.write(warehouse_data)
+                    # DEBUG: st.text(type(warehouse_data))
+                    generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
+                    # DEBUG: st.write(generated_df)
+                    generated_df['Building ID'] = building_ID
+                    generated_df['Project ID'] = uploaded_file.name[:-4]
+                    generated_df['Street'] = street
+                    generated_df['Post code'] = post_code
+                    generated_df['Town'] = town
+                    generated_df['Canton'] = canton
+                    generated_df['Country'] = country
+                    generated_df['Complete address'] = complete_address
+                    get_project_geocoordinates(generated_df)
+                    # Remove rows with missing latitude or longitude values
+                    # DEBUG: st.write("Test obtaining geocoordinates")
+                    # DEBUG: st.write(generated_df)
+                    generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
+                    # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
+                    # DEBUG: st.write(generated_df)
+                    ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
+                
+                #Get IfcBoundingBox dimensions:
+                add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)      
+                
+                # Print the dataframes and provide download button
+                for entity, generated_df in ifcEntity_dataframes.items():
+                    st.write(f"{entity}:")
+                    st.write(generated_df)
+                    st.map(generated_df)
+                    pickle_data = io.BytesIO()
+                    generated_df.to_pickle(pickle_data)
+                    pickle_data.seek(0)
+                    # Save the generated pickle to the bucket
+                    save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
+                    st.download_button(
+                        label=f"Download {entity}.pickle",
+                        data=pickle_data,
+                        file_name=f"{entity}.pickle",
+                        mime="application/octet-stream",
+                    )
+    
+        # ========== APPROVE / REJECT process with upload to GCS ==========
+    
         if uploaded_file is not None:
-            # Save the uploaded file to the bucket
-            blob_name = uploaded_file.name
-            save_to_bucket(uploaded_file, blob_name)
-            uploaded_file.seek(0)  # Add this line
-            # Download the file back from the bucket to a local file
-            local_filename = download_from_bucket(blob_name)
-            ifc_file_admin_upload = ifcopenshell.open(local_filename)
-            # Get the project address
-            building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
-            # Loop through the IfcEntities and append data to the respective dataframe
-            for entity in IfcEntities:
-                warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
-                # DEBUG: st.write(warehouse_data)
-                # DEBUG: st.text(type(warehouse_data))
-                generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
-                # DEBUG: st.write(generated_df)
-                generated_df['Building ID'] = building_ID
-                generated_df['Project ID'] = uploaded_file.name[:-4]
-                generated_df['Street'] = street
-                generated_df['Post code'] = post_code
-                generated_df['Town'] = town
-                generated_df['Canton'] = canton
-                generated_df['Country'] = country
-                generated_df['Complete address'] = complete_address
-                get_project_geocoordinates(generated_df)
-                # Remove rows with missing latitude or longitude values
-                # DEBUG: st.write("Test obtaining geocoordinates")
-                # DEBUG: st.write(generated_df)
-                generated_df = generated_df.dropna(subset=['latitude', 'longitude'])
-                # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
-                # DEBUG: st.write(generated_df)
-                ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
-            
-            #Get IfcBoundingBox dimensions:
-            add_IfcBoundingBox_dimensions_into_dimensions_df(ifc_file_admin_upload, IfcEntities)      
-            
-            # Print the dataframes and provide download button
-            for entity, generated_df in ifcEntity_dataframes.items():
-                st.write(f"{entity}:")
-                st.write(generated_df)
-                st.map(generated_df)
-                pickle_data = io.BytesIO()
-                generated_df.to_pickle(pickle_data)
-                pickle_data.seek(0)
-                # Save the generated pickle to the bucket
-                save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
-                st.download_button(
-                    label=f"Download {entity}.pickle",
-                    data=pickle_data,
-                    file_name=f"{entity}.pickle",
-                    mime="application/octet-stream",
-                )
-
-    # ========== APPROVE / REJECT process with upload to GCS ==========
-
-    if uploaded_file is not None:
-
-        if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
-            col1, col2 = st.columns(2)  # Create two columns
-            with col1:
-                if st.button("REJECT"):
-                    # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
-                    delete_from_bucket(blob_name)
-                    delete_pickles("pickles_processing_directory")
-                    st.success("SUCCESS!")
-                    st.session_state["file_uploader_key"] += 1
-                    st.session_state["uploaded_ifc_file"] = "You have rejected the merge with the main GCS DataFrame, please reload this page to restart the process."
-                    st.session_state["rerun_page"] = "no"
-                    st.experimental_rerun()
-                st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
-
-            with col2:
-                if st.button("APPROVE"):
-                    # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'pickles_processing_directory'
-                    move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
-                    for entity, generated_df in ifcEntity_dataframes.items():
-                        pickle_data = io.BytesIO()
-                        generated_df.to_pickle(pickle_data)
-                        pickle_data.seek(0)
-                        save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
-                        backup_pickles()
-                        merge_dataframes()
+        
+            if ifcEntity_dataframes:  # This checks if the ifcEntity_dataframes dictionary is not empty
+                col1, col2 = st.columns(2)  # Create two columns
+                with col1:
+                    if st.button("REJECT"):
+                        # Delete the IFC file and the pickle files from 'warehouse_processing_directory' bucket
+                        delete_from_bucket(blob_name)
+                        delete_pickles("pickles_processing_directory")
                         st.success("SUCCESS!")
                         st.session_state["file_uploader_key"] += 1
-                        st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
+                        st.session_state["uploaded_ifc_file"] = "You have rejected the merge with the main GCS DataFrame, please reload this page to restart the process."
                         st.session_state["rerun_page"] = "no"
                         st.experimental_rerun()
-                st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
+                    st.write("If you are not satisifed with the content of the IFC file and wish not to merge it with the warehouse database, click REJECT. This will remove all temporary data you have created, including DataFrames and IFC files.")
+    
+                with col2:
+                    if st.button("APPROVE"):
+                        # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'pickles_processing_directory'
+                        move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
+                        for entity, generated_df in ifcEntity_dataframes.items():
+                            pickle_data = io.BytesIO()
+                            generated_df.to_pickle(pickle_data)
+                            pickle_data.seek(0)
+                            save_pickle_to_bucket(pickle_data, f"{entity}.pickle")
+                            backup_pickles()
+                            merge_dataframes()
+                            st.success("SUCCESS!")
+                            st.session_state["file_uploader_key"] += 1
+                            st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
+                            st.session_state["rerun_page"] = "no"
+                            st.experimental_rerun()
+                    st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
     if "rerun_page" in st.session_state and st.session_state["rerun_page"] == "no":
         st.write("", st.session_state["uploaded_ifc_file"])
