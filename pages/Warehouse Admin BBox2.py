@@ -227,6 +227,10 @@ def extract_dimensions_from_ifc(ifc_file, target_entities):
                                 data.append([name, global_id, x, y, z])
     
     df = pd.DataFrame(data, columns=["Name", "Global ID", "X", "Y", "Z"])
+
+    # Check if 'Global ID' exists in df, if not add it
+    if 'Global ID' not in df.columns:
+        df['Global ID'] = None  # or some default value
     
     return df
 
@@ -322,18 +326,18 @@ def main_app():
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
 
             with st.spinner("Extracting data from IFC..."):
-                df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
+                dimensions_df = extract_dimensions_from_ifc(ifc_file_admin_upload, IfcEntities)
 
                 # Get the length unit and its conversion factor
                 length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
                 # length_unit = get_length_unit(ifc_file)
 
                 # Append the conversion factor to the dataframe
-                df["Conversion_factor"] = [conversion_factor] * len(df)
-                df = multiply_and_round(df)
-                rename_columns(df)
+                dimensions_df["Conversion_factor"] = [conversion_factor] * len(dimensions_df)
+                dimensions_df = multiply_and_round(dimensions_df)
+                rename_columns(dimensions_df)
 
-                st.dataframe(df)
+                st.dataframe(dimensions_df)
 
                 # Display the length unit and potentially a warning
                 if length_unit:
