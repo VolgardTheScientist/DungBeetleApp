@@ -297,6 +297,7 @@ def main_app():
             # DEBUG: st.write(dimensions_df)
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
+            display_model_unit_add_convertion_factor(length_unit, conversion_factor)
             # Loop through the IfcEntities and append data to the respective dataframe
             for entity in IfcEntities:
                 warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
@@ -307,7 +308,6 @@ def main_app():
                 # DEBUG: st.write("Columns in dimensions_df: ", dimensions_df.columns)
                 generated_df = pd.merge(generated_df, dimensions_df, how='left', on='Global ID')
                 length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
-                display_model_unit_add_convertion_factor(length_unit, conversion_factor)
                 generated_df["Conversion_factor"] = [conversion_factor] * len(generated_df)
                 generated_df = multiply_and_round(generated_df)
                 rename_columns(generated_df)
