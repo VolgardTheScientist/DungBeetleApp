@@ -367,6 +367,7 @@ def main_app():
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
+            generated_df = pd.DataFrame()
             for entity in IfcEntities:
                 warehouse_data = ifchelper.get_objects_data_by_class(ifc_file_admin_upload, entity)
                 # DEBUG: st.write(warehouse_data)
