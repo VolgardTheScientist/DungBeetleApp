@@ -205,6 +205,92 @@ def merge_dataframes():
             # Delete the temp blob after processing
             temp_blob.delete()
 
+# ========== Get IfcBoundingBox dimensions ==========
+
+
+def get_IfcBoundingBox_dimensions(file, entity, conversion_factor):
+    data = []
+    
+    elements = file.by_type(entity)
+    for element in elements:
+        if hasattr(element, "Representation"):
+            for rep in element.Representation.Representations:
+                if rep.is_a("IfcShapeRepresentation"):
+                    for item in rep.Items:
+                        if item.is_a("IfcBoundingBox"):
+                            name = element.Name if element.Name else "N/A"
+                            global_id = element.GlobalId if element.GlobalId else "N/A"
+                            x = item.XDim
+                            y = item.YDim
+                            z = item.ZDim
+                            data.append([name, global_id, x, y, z])
+    
+    df = pd.DataFrame(data, columns=["Name", "Global ID", "Length_[cm]", "Width_[cm]", "Height_[cm]"])
+    df["Conversion_factor"] = [conversion_factor] * len(df)
+    df = multiply_and_round(df)
+    # Check if 'Global ID' exists in df, if not add it
+    if 'Global ID' not in df.columns:
+        df['Name'] = None
+        df['Global ID'] = None
+        df['Length_[cm]'] = None
+        df['Width_[cm]'] = None
+        df['Height_[cm]'] = None
+    
+    return df
+
+def get_length_unit_and_conversion_factor(ifc_file):
+    # Fetch the IfcProject entity (assuming there's only one in the file)
+    project = ifc_file.by_type("IfcProject")[0]
+    
+    # Extract units from the IfcUnitAssignment
+    for unit in project.UnitsInContext.Units:
+        if unit.is_a("IfcSIUnit") and unit.UnitType == "LENGTHUNIT":
+            if unit.Name == "METRE" and unit.Prefix == None:
+                return unit.Name, 100 #Convertion of M to CM
+            elif unit.Name == "METRE" and unit.Prefix == "MILLI":
+                return unit.Name, 0.1 #Convertion of MM to CM
+            elif unit.Name == "METRE" and unit.Prefix == "CENTI":
+                return unit.Name, 1 #No conversion required
+    
+    return None, 1  # Defaulting to a conversion factor of 1 if no matching SI unit is found
+
+
+# Function to multiply and round columns
+def multiply_and_round(df):
+    # List of columns to multiply
+    columns_to_multiply = ["Length_[cm]", "Width_[cm]", "Height_[cm]"]   
+    for col in columns_to_multiply:
+        df[col] = (df[col] * df['Conversion_factor']).round(1)
+    return df
+
+def display_ifc_project_units(conversion_factor, length_unit):       
+    if length_unit:
+        st.write(f"The model was created using units of: {length_unit}")
+        if conversion_factor == 1 and length_unit not in ["METER", "MILIMETER", "CENTIMETER"]:
+            st.warning("No SI unit defined in this project.")
+    else:
+        st.write("Could not determine the length unit used in the model.")
+
+def merge_dimensions_with_generated_df(dimensions_df, generated_df):
+    # Create an empty DataFrame if dimensions_df is empty
+    if dimensions_df.empty:
+        for col in ['Length_[cm]', 'Width_[cm]', 'Height_[cm]']:
+            generated_df[col] = None
+    else:
+        # Merge only selected columns from dimensions_df into generated_df based on "Global ID"
+        selected_columns = ['Global ID', 'Length_[cm]', 'Width_[cm]', 'Height_[cm]']
+        filtered_dimensions_df = dimensions_df[selected_columns]
+        
+        generated_df = pd.merge(
+            generated_df,
+            filtered_dimensions_df,
+            on='Global ID',
+            how='left'
+        )
+    return generated_df
+
+
+
 # ========== Create main App ==========
 
 def main_app():
@@ -227,6 +313,7 @@ def main_app():
 
     if uploaded_file:
         st.session_state["uploaded_ifc_file"] = uploaded_file
+  
 
     # ========== DataFrame Generator from IFC ==========
 
@@ -246,6 +333,9 @@ def main_app():
             # Download the file back from the bucket to a local file
             local_filename = download_from_bucket(blob_name)
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
+            # Get the length unit and its conversion factor
+            length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
+            display_ifc_project_units(conversion_factor, length_unit)
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
@@ -254,7 +344,11 @@ def main_app():
                 # DEBUG: st.write(warehouse_data)
                 # DEBUG: st.text(type(warehouse_data))
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
+                dimensions_df = get_IfcBoundingBox_dimensions(ifc_file_admin_upload, entity, conversion_factor)
                 # DEBUG: st.write(generated_df)
+                st.write(dimensions_df) # DEBUG
+                generated_df = merge_dimensions_with_generated_df(dimensions_df, generated_df)
+                st.write(generated_df) # DEBUG
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
                 generated_df['Street'] = street
@@ -271,6 +365,7 @@ def main_app():
                 # DEBUG: st.write("Test removing rowd with missing latitiude and longitude")
                 # DEBUG: st.write(generated_df)
                 ifcEntity_dataframes["temp_" + entity] = pd.concat([ifcEntity_dataframes["temp_" + entity], generated_df], ignore_index=True)
+                        
             # Print the dataframes and provide download button
             for entity, generated_df in ifcEntity_dataframes.items():
                 st.write(f"{entity}:")
@@ -308,6 +403,7 @@ def main_app():
 
             with col2:
                 if st.button("APPROVE"):
+                    st.session_state["rerun_page"] = "no"
                     # Upload the IFC file to 'ifc_warehouse' bucket and pickles to 'pickles_processing_directory'
                     move_file_between_buckets('warehouse_processing_directory', 'ifc_warehouse', blob_name)
                     for entity, generated_df in ifcEntity_dataframes.items():
@@ -320,7 +416,7 @@ def main_app():
                         st.success("SUCCESS!")
                         st.session_state["file_uploader_key"] += 1
                         st.session_state["uploaded_ifc_file"] = "Your file has successfully been uploaded to GCS main DataFrame"
-                        st.session_state["rerun_page"] = "no"
+                        # st.session_state["rerun_page"] = "no"
                         st.experimental_rerun()
                 st.write("If you have checked the content of the dataframes and are confident that the data meets Dung Beetle requirements click APPROVE. Your data will be merged with the main database.")
 
