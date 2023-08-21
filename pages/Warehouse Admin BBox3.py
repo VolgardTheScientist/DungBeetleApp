@@ -284,6 +284,7 @@ def merge_dimensions_with_generated_df(dimensions_df, generated_df):
             on='Global ID',
             how='left'
         )
+    return generated_df
 
 
 # ========== Create main App ==========
@@ -342,7 +343,7 @@ def main_app():
                 dimensions_df = get_IfcBoundingBox_dimensions(ifc_file_admin_upload, entity, conversion_factor)
                 # DEBUG: st.write(generated_df)
                 st.write(dimensions_df) # DEBUG
-                merge_dimensions_with_generated_df(dimensions_df, generated_df)
+                generated_df = merge_dimensions_with_generated_df(dimensions_df, generated_df)
                 st.write(generated_df) # DEBUG
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
