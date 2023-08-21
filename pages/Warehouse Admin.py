@@ -346,9 +346,9 @@ def main_app():
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
                 dimensions_df = get_IfcBoundingBox_dimensions(ifc_file_admin_upload, entity, conversion_factor)
                 # DEBUG: st.write(generated_df)
-                st.write(dimensions_df) # DEBUG
+                # DEBUG: st.write(dimensions_df) # DEBUG
                 generated_df = merge_dimensions_with_generated_df(dimensions_df, generated_df)
-                st.write(generated_df) # DEBUG
+                # DEBUG: st.write(generated_df) # DEBUG
                 generated_df['Building ID'] = building_ID
                 generated_df['Project ID'] = uploaded_file.name[:-4]
                 generated_df['Street'] = street
