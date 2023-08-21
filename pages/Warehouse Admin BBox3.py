@@ -272,19 +272,23 @@ def display_ifc_project_units(conversion_factor, length_unit):
         st.write("Could not determine the length unit used in the model.")
 
 def merge_dimensions_with_generated_df(dimensions_df, generated_df):
+    # Create an empty DataFrame if dimensions_df is empty
     if dimensions_df.empty:
-        # If dimensions_df is empty, append empty columns to generated_df
         for col in ['Length_[cm]', 'Width_[cm]', 'Height_[cm]']:
             generated_df[col] = None
     else:
-        # Merge generated_df with dimensions_df based on "Global ID"
+        # Merge only selected columns from dimensions_df into generated_df based on "Global ID"
+        selected_columns = ['Global ID', 'Length_[cm]', 'Width_[cm]', 'Height_[cm]']
+        filtered_dimensions_df = dimensions_df[selected_columns]
+        
         generated_df = pd.merge(
             generated_df,
-            dimensions_df,
+            filtered_dimensions_df,
             on='Global ID',
             how='left'
         )
     return generated_df
+
 
 
 # ========== Create main App ==========
