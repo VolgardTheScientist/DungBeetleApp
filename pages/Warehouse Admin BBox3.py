@@ -314,10 +314,6 @@ def main_app():
 
     IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
 
-    # Get the length unit and its conversion factor
-    length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
-    display_ifc_project_units(conversion_factor, length_unit)
-
     ifcEntity_dataframes = {}
     for entity in IfcEntities:
         ifcEntity_dataframes["temp_" + entity] = pd.DataFrame()
@@ -332,6 +328,9 @@ def main_app():
             # Download the file back from the bucket to a local file
             local_filename = download_from_bucket(blob_name)
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
+            # Get the length unit and its conversion factor
+            length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file_admin_upload)
+            display_ifc_project_units(conversion_factor, length_unit)
             # Get the project address
             building_ID, street, post_code, town, canton, country, complete_address = get_project_address(ifc_file_admin_upload)
             # Loop through the IfcEntities and append data to the respective dataframe
