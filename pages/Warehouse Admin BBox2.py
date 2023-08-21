@@ -322,7 +322,7 @@ def main_app():
             ifc_file_admin_upload = ifcopenshell.open(local_filename)
 
             with st.spinner("Extracting data from IFC..."):
-                df, ifc_file = extract_dimensions_from_ifc(ifc_file_admin_upload)
+                df, ifc_file = extract_dimensions_from_ifc(local_filename)
 
                 # Get the length unit and its conversion factor
                 length_unit, conversion_factor = get_length_unit_and_conversion_factor(ifc_file)
