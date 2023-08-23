@@ -205,6 +205,38 @@ def search_google_for_selected_row(sel_row_list):
         unsafe_allow_html=True
     )
 
+def check_available_quantity_of_products(df, sel_row, *columns):
+    """
+    Count the number of rows in df that match the selected row based on specified columns.
+
+    Parameters:
+    - df: DataFrame containing the products
+    - sel_row: List of dictionaries containing a single selected row from the AgGrid
+    - columns: column names to match against
+
+    Returns:
+    - int: number of matching rows in df
+    """
+
+    if not sel_row:
+        return 0
+
+    sel_row_dict = sel_row[0]  # Get the first (and presumably only) dictionary in the list
+
+    # Only consider columns that actually exist in both the DataFrame and the selected row dictionary
+    existing_columns = [col for col in columns if col in df.columns and col in sel_row_dict]
+
+    # Create a DataFrame that will be used to store the filtered conditions
+    filtered_df = pd.DataFrame(index=df.index)
+
+    for col in existing_columns:
+        if sel_row_dict[col] is not None:
+            filtered_df[col] = df[col] == sel_row_dict[col]
+
+    # Combine conditions across multiple columns using the 'all' function along axis=1
+    final_condition = filtered_df.all(axis=1)
+
+    return len(df[final_condition])
 
 def create_user_interface():
     for df_name, df in dataframes.items():
@@ -213,6 +245,8 @@ def create_user_interface():
             with st.container():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
+                quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer", "Model", "Article number", "Length_[cm]", "Width_[cm]", "Height_[cm]")
+
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
@@ -262,6 +296,10 @@ def create_user_interface():
                         url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                         url = url_to_ifc_file
                 
+                # Add material quantity data:
+                if quantity_of_products != 0:
+                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
+
                 # Add google search facility:
                 search_google_for_selected_row(sel_row)
 
