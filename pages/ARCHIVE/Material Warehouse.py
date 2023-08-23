@@ -254,8 +254,26 @@ def create_user_interface():
 
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.subheader('Product location')             
+                st.map(sel_row_for_map)
             with st.sidebar:
                 st.write('To preview & download an IFC file, select a single product from the list and press download button below')
+            if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
+                Global_ID = sel_row_for_map['Global ID'].iloc[0]
+                Global_ID = str(Global_ID)
+            else:
+                Global_ID = None
+
+            if 'Project ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
+                Project_ID = sel_row_for_map['Project ID'].iloc[0]
+                Project_ID = str(Project_ID)
+            else:
+                Project_ID = None       
+
+            with st.sidebar:
                 input_file_name = Project_ID
                 input_guid = None  # Initialize input_guid as None
 
@@ -290,27 +308,7 @@ def create_user_interface():
                     st.write("There are " + str(quantity_of_products) + " of your selected products available")
 
                 # Add google search facility:
-                search_google_for_selected_row(sel_row)            
-            
-            
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.subheader('Product location')             
-                st.map(sel_row_for_map)
-
-            if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
-                Global_ID = sel_row_for_map['Global ID'].iloc[0]
-                Global_ID = str(Global_ID)
-            else:
-                Global_ID = None
-
-            if 'Project ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
-                Project_ID = sel_row_for_map['Project ID'].iloc[0]
-                Project_ID = str(Project_ID)
-            else:
-                Project_ID = None       
-                
+                search_google_for_selected_row(sel_row)
 
             # Call the IFC viewer function
             with col2:
