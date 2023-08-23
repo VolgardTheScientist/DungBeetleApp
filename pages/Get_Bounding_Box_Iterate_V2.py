@@ -224,12 +224,14 @@ def get_bounding_box(product):
 def main():
     st.title("IFC Bounding Box calculator")
 
-    # Load IFC file 
     uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+
     if uploaded_file:
         tfile = tempfile.NamedTemporaryFile(delete=False)
         tfile.write(uploaded_file.read())
         ifc_file = ifcopenshell.open(tfile.name)
+        ifc_file = ifcopenshell.open(tfile.name)
+
         products = ifc_file.by_type("IfcProduct")
 
         # Create an empty dictionary to store bounding boxes // is this a list?
