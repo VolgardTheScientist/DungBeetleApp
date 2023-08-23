@@ -230,8 +230,12 @@ def check_available_quantity_of_products(df, sel_row, *columns):
     filtered_df = pd.DataFrame(index=df.index)
 
     for col in existing_columns:
-        if sel_row_dict[col] is not None:
-            filtered_df[col] = df[col] == sel_row_dict[col]
+        value = sel_row_dict.get(col, None)
+        if value is not None:
+            filtered_df[col] = df[col] == value
+        else:
+            # If the value in sel_row_dict is None, then only consider rows in df where the column is also None
+            filtered_df[col] = df[col].isna()
 
     # Combine conditions across multiple columns using the 'all' function along axis=1
     final_condition = filtered_df.all(axis=1)
