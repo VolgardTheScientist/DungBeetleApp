@@ -226,17 +226,15 @@ def check_available_quantity_of_products(df, sel_row, *columns):
     # Only consider columns that actually exist in both the DataFrame and the selected row dictionary
     existing_columns = [col for col in columns if col in df.columns and col in sel_row_dict]
 
-    # Create a DataFrame that will be used to store the filtered conditions
-    filtered_df = pd.DataFrame(index=df.index)
+    # Create filter conditions, ignoring null or None values in the selected row
+    conditions = (df[col] == sel_row_dict[col] for col in existing_columns if sel_row_dict[col] is not None)
 
-    for col in existing_columns:
-        if sel_row_dict[col] is not None:
-            filtered_df[col] = df[col] == sel_row_dict[col]
+    # Filter DataFrame
+    filtered_df = df
+    for condition in conditions:
+        filtered_df = filtered_df[condition]
 
-    # Combine conditions across multiple columns using the 'all' function along axis=1
-    final_condition = filtered_df.all(axis=1)
-
-    return len(df[final_condition])
+    return len(filtered_df)
 
 def create_user_interface():
     for df_name, df in dataframes.items():
