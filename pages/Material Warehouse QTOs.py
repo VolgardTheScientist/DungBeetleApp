@@ -211,20 +211,23 @@ def check_available_quantity_of_products(df, sel_row, *columns):
 
     Parameters:
     - df: DataFrame containing the products
-    - sel_row: DataFrame containing a single selected row from the AgGrid
+    - sel_row: List of dictionaries containing a single selected row from the AgGrid
     - columns: column names to match against
 
     Returns:
     - int: number of matching rows in df
     """
-    if sel_row.empty:
+
+    if not sel_row:
         return 0
 
-    # Only consider columns that actually exist in both DataFrames
-    existing_columns = [col for col in columns if col in df.columns and col in sel_row.columns]
+    sel_row_dict = sel_row[0]  # Get the first (and presumably only) dictionary in the list
 
-    # Create filter conditions
-    conditions = (df[col] == sel_row[col].iloc[0] for col in existing_columns)
+    # Only consider columns that actually exist in both the DataFrame and the selected row dictionary
+    existing_columns = [col for col in columns if col in df.columns and col in sel_row_dict]
+
+    # Create filter conditions, ignoring null or None values in the selected row
+    conditions = (df[col] == sel_row_dict[col] for col in existing_columns if sel_row_dict[col] is not None)
 
     # Filter DataFrame
     filtered_df = df
@@ -240,9 +243,8 @@ def create_user_interface():
             with st.container():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
-                st.write(sel_row)
                 quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer")
-                # st.write("There are " + str(quantity_of_products) + " of your selected products available" )
+                st.write("There are " + str(quantity_of_products) + " of your selected products available")
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
