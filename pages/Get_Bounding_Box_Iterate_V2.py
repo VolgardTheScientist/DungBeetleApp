@@ -223,8 +223,8 @@ def get_bounding_box(product):
 
 def main():
     st.title("IFC Bounding Box calculator")
-
-    if ifc_file is not None:
+    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+    if uploaded_file is not None:
         uploaded_file_name = ifc_file.name  # Save the name before overwriting the variable
 
         # Create a temporary file
