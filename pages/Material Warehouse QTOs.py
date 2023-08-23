@@ -244,8 +244,7 @@ def create_user_interface():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
                 quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer")
-                if quantity_of_products != 0:
-                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
+
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
@@ -295,6 +294,10 @@ def create_user_interface():
                         url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                         url = url_to_ifc_file
                 
+                # Add material quantity data:
+                if quantity_of_products != 0:
+                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
+
                 # Add google search facility:
                 search_google_for_selected_row(sel_row)
 
