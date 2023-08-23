@@ -237,7 +237,7 @@ def main():
 
         products = ifc_file.by_type("IfcProduct")
 
-        # Create an empty dictionary to store bounding boxes // is this a list?
+        # Create an empty dictionary to store bounding boxes
         bounding_boxes = {}
 
         # Loop through all IfcProduct instances to get their geometry
