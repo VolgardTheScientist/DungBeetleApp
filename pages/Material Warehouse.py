@@ -249,7 +249,7 @@ def create_user_interface():
             with st.container():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
-                st.write(sel_row)
+                # DEBUG: st.write(sel_row)
                 quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer", "Model", "Article number", "Length_[cm]", "Width_[cm]", "Height_[cm]")
 
             # st.write("See map below for location of our building products, choose product group from the sidebar")
@@ -302,7 +302,9 @@ def create_user_interface():
                         url = url_to_ifc_file
                 
                 # Add material quantity data:
-                if quantity_of_products != 0:
+                if quantity_of_products == 1:
+                    st.write("There is 1 of your selected product available")
+                elif quantity_of_products > 1:
                     st.write("There are " + str(quantity_of_products) + " of your selected products available")
 
                 # Add google search facility:
