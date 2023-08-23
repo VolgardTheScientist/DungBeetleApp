@@ -227,7 +227,9 @@ def main():
     # Load IFC file 
     uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
     if uploaded_file:
-        ifc_file = ifcopenshell.open("path/to/your/file.ifc")
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.write(uploaded_file.read())
+        ifc_file = ifcopenshell.open(tfile.name)
         products = ifc_file.by_type("IfcProduct")
 
         # Create an empty dictionary to store bounding boxes // is this a list?
