@@ -224,12 +224,15 @@ def get_bounding_box(product):
 def main():
     st.title("IFC Bounding Box calculator")
 
-    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+    if ifc_file is not None:
+        uploaded_file_name = ifc_file.name  # Save the name before overwriting the variable
 
-    if uploaded_file:
-        tfile = tempfile.NamedTemporaryFile(delete=False)
-        tfile.write(uploaded_file.read())
-        ifc_file = ifcopenshell.open(tfile.name)
+        # Create a temporary file
+        tfile = tempfile.NamedTemporaryFile(delete=False) 
+        tfile.write(ifc_file.getvalue())
+        tfile.close()
+
+        # Open the file using ifcopenshell
         ifc_file = ifcopenshell.open(tfile.name)
 
         products = ifc_file.by_type("IfcProduct")
