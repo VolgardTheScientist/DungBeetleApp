@@ -156,7 +156,7 @@ def AgGrid_with_display_rules(df):
     gd = GridOptionsBuilder.from_dataframe(df)
     gd.configure_pagination(enabled=False, paginationAutoPageSize=False, paginationPageSize=3)
     gd.configure_default_column(editable=False, groupable=True)
-    gd.configure_selection(selection_mode='multiple', use_checkbox=True)
+    gd.configure_selection(selection_mode='single', use_checkbox=True)
     gridoptions = gd.build()
     grid_table = AgGrid(df, gridOptions=gridoptions,
                         update_mode=GridUpdateMode.SELECTION_CHANGED,
