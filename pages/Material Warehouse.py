@@ -256,6 +256,33 @@ def create_user_interface():
             # Initialize the columns
             with st.sidebar:
                 st.write('To preview & download an IFC file, select a single product from the list and press download button below')
+                # Add material quantity data:
+                if quantity_of_products == 1:
+                    st.write("There is 1 of your selected product available")
+                elif quantity_of_products > 1:
+                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
+                # Add google search facility:
+                search_google_for_selected_row(sel_row)
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.subheader('Product location')             
+                st.map(sel_row_for_map)
+            
+            if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
+                Global_ID = sel_row_for_map['Global ID'].iloc[0]
+                Global_ID = str(Global_ID)
+            else:
+                Global_ID = None
+
+            if 'Project ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
+                Project_ID = sel_row_for_map['Project ID'].iloc[0]
+                Project_ID = str(Project_ID)
+            else:
+                Project_ID = None       
+
+            with st.sidebar:
                 input_file_name = Project_ID
                 input_guid = None  # Initialize input_guid as None
 
@@ -283,34 +310,9 @@ def create_user_interface():
                         url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
                         url = url_to_ifc_file
                 
-                # Add material quantity data:
-                if quantity_of_products == 1:
-                    st.write("There is 1 of your selected product available")
-                elif quantity_of_products > 1:
-                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
 
-                # Add google search facility:
-                search_google_for_selected_row(sel_row)            
-            
-            
-            col1, col2 = st.columns(2)
 
-            with col1:
-                st.subheader('Product location')             
-                st.map(sel_row_for_map)
 
-            if 'Global ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
-                Global_ID = sel_row_for_map['Global ID'].iloc[0]
-                Global_ID = str(Global_ID)
-            else:
-                Global_ID = None
-
-            if 'Project ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
-                Project_ID = sel_row_for_map['Project ID'].iloc[0]
-                Project_ID = str(Project_ID)
-            else:
-                Project_ID = None       
-                
 
             # Call the IFC viewer function
             with col2:
