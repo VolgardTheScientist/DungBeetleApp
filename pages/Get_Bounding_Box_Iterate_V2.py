@@ -223,35 +223,39 @@ def get_bounding_box(product):
 
 def main():
     st.title("IFC Bounding Box calculator")
-    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
-    if uploaded_file is not None:
-        uploaded_file_name = ifc_file.name  # Save the name before overwriting the variable
 
-        # Create a temporary file
-        tfile = tempfile.NamedTemporaryFile(delete=False) 
-        tfile.write(ifc_file.getvalue())
+    uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+
+    if uploaded_file:
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.write(uploaded_file.read())
+        
+        # Close the temporary file
         tfile.close()
 
-        # Open the file using ifcopenshell
-        ifc_file = ifcopenshell.open(tfile.name)
+        try:
+            # Open the IFC file just once
+            ifc_file = ifcopenshell.open(tfile.name)
 
-        products = ifc_file.by_type("IfcProduct")
+            products = ifc_file.by_type("IfcProduct")
 
-        # Create an empty dictionary to store bounding boxes
-        bounding_boxes = {}
+            # Create an empty dictionary to store bounding boxes
+            bounding_boxes = {}
 
-        # Loop through all IfcProduct instances to get their geometry
-        for product in products:
-            guid = product.GlobalId
-            name = product.Name
-            dims = get_bounding_box(product)
+            # Loop through all IfcProduct instances to get their geometry
+            for product in products:
+                guid = product.GlobalId
+                name = product.Name
+                dims = get_bounding_box(product)
 
-            if dims:
-                bounding_boxes[guid] = {'Name': name, 'BoundingBox': dims}
+                if dims:
+                    bounding_boxes[guid] = {'Name': name, 'BoundingBox': dims}
 
-        # Print bounding boxes
-        st.write(bounding_boxes)
+            # Print bounding boxes
+            st.write(bounding_boxes)
 
+        except Exception as e:
+            st.write(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
