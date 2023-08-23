@@ -243,7 +243,7 @@ def create_user_interface():
             with st.container():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
-                quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer", "Model", "Article number", "Length_[cm]", "Width_[cm]", "Height_[cm]")
+                quantity_of_products = check_available_quantity_of_products(df, sel_row, "Height_[cm]")
 
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
