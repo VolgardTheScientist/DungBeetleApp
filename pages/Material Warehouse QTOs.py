@@ -244,7 +244,8 @@ def create_user_interface():
                 grid_table, sel_row = AgGrid_with_display_rules(df)
                 sel_row_for_map = pd.DataFrame(sel_row)
                 quantity_of_products = check_available_quantity_of_products(df, sel_row, "Manufacturer")
-                st.write("There are " + str(quantity_of_products) + " of your selected products available")
+                if sel_row != None:
+                    st.write("There are " + str(quantity_of_products) + " of your selected products available")
             # st.write("See map below for location of our building products, choose product group from the sidebar")
             # Initialize the columns
             col1, col2 = st.columns(2)
