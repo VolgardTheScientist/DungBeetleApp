@@ -224,13 +224,13 @@ def get_bounding_box(product):
 def main():
     st.title("IFC Bounding Box calculator")
 
-    # Load IFC file
+    # Load IFC file 
     uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
     if uploaded_file:
         ifc_file = ifcopenshell.open("path/to/your/file.ifc")
         products = ifc_file.by_type("IfcProduct")
 
-        # Create an empty dictionary to store bounding boxes
+        # Create an empty dictionary to store bounding boxes // is this a list?
         bounding_boxes = {}
 
         # Loop through all IfcProduct instances to get their geometry
