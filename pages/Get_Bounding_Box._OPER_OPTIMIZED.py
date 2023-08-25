@@ -177,21 +177,21 @@ def get_footprint_perimeter(geometry):
     return sum([np.linalg.norm(vertices[e[0]] - vertices[e[1]]) for e in (all_edges - shared_edges)])
 
 # Streamlit App
-def process_ifc_element(element, settings):
-    try:
-        representation = element.Representation.Representations[0]
-        geometry = ifcopenshell.geom.create_shape(settings, representation)
-        
-        yield {
-            "GlobalId": element.GlobalId,
-            "Type": element.is_a(),
-            "X": get_x(geometry),
-            "Y": get_y(geometry),
-            "Z": get_z(geometry),
-        }
-    except Exception as e:  # Replace with the specific exceptions you expect
-        st.warning(f"Failed to process {element.GlobalId} due to {str(e)}")
-        yield None
+def process_ifc_batch(element_batch, settings):
+    for element in element_batch:
+        try:
+            representation = element.Representation.Representations[0]
+            geometry = ifcopenshell.geom.create_shape(settings, representation)
+            yield {
+                "GlobalId": element.GlobalId,
+                "Type": element.is_a(),
+                "X": get_x(geometry),
+                "Y": get_y(geometry),
+                "Z": get_z(geometry),
+            }
+        except Exception as e:  # Replace with specific exceptions you expect
+            st.warning(f"Failed to process {element.GlobalId} due to {str(e)}")
+            yield None
 
 def main():
     uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
@@ -204,21 +204,30 @@ def main():
         settings = ifcopenshell.geom.settings()
         
         # Initialize an empty DataFrame with the columns
-        df = pd.DataFrame(columns=["GlobalId", "Type", "Volume", "X", "Y", "Z", "Area"])
+        df = pd.DataFrame(columns=["GlobalId", "Type", "X", "Y", "Z"])
         
-        # Process elements one at a time and add them to DataFrame
+        batch_size = 50  # Adjust the batch size based on your server's memory capacity
+        element_batch = []
+        
+        # Process elements in batches
         for element in ifc_file.by_type("IfcElement"):
-            for result in process_ifc_element(element, settings):
-                if result:
-                    # Explicitly create a DataFrame from the yielded result
-                    temp_df = pd.DataFrame([result])
-                    # Append the new DataFrame to the original DataFrame
-                    df = pd.concat([df, temp_df], ignore_index=True)
+            element_batch.append(element)
+            
+            if len(element_batch) == batch_size:
+                for result in process_ifc_batch(element_batch, settings):
+                    if result:
+                        temp_df = pd.DataFrame([result])
+                        df = pd.concat([df, temp_df], ignore_index=True)
+                element_batch = []
         
+        # Process any remaining elements in the last batch
+        for result in process_ifc_batch(element_batch, settings):
+            if result:
+                temp_df = pd.DataFrame([result])
+                df = pd.concat([df, temp_df], ignore_index=True)
+
         st.write(df)
 
 if __name__ == "__main__":
     main()
-
-
 
