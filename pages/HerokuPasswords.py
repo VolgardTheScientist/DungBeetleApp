@@ -7,7 +7,7 @@ import os
 try:
     # Try to get the password using Streamlit's built-in secrets management
     correct_password = st.secrets["ADMIN_CREDENTIALS"]["password"]
-except KeyError:
+except (FileNotFoundError, KeyError):
     # If that fails, try to get the password from the Heroku environment variable
     toml_string = os.environ.get("SECRETS_TOML", "")
     if toml_string:
