@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 import ifcopenshell
 import ifcopenshell.geom as geom
@@ -236,12 +237,10 @@ def main():
                 displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
         
         if not displayed_df.empty:
-                # Save DataFrame to a CSV file
-                csv_path = 'temp_result.csv'
-                displayed_df.to_csv(csv_path, index=False)
-
-                # Generate a download link for the CSV
-                st.markdown(f"[Download CSV file]({csv_path})")
+                csv = displayed_df.to_csv(index=False)
+                b64 = base64.b64encode(csv.encode()).decode()
+                link= f'<a href="data:file/csv;base64,{b64}" download="myfilename.csv">Download CSV File</a>'
+                st.markdown(link, unsafe_allow_html=True)
 
 
 
