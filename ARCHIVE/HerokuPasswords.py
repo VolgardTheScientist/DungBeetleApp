@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 import toml
 import os
@@ -21,8 +22,10 @@ if not correct_password:
     except (FileNotFoundError, KeyError):
         pass  # Handle the exception gracefully or log an appropriate message if needed
 
-# Now you can use `correct_password` in your code
-st.write(correct_password)
+if correct_password:
+    st.write("Correct password successfully loaded.")
+else:
+    st.write("Failed to load correct password.")
 
 # ========== Fetch SECRETS Google Credentials ==========
 
@@ -41,8 +44,15 @@ if toml_string:
 if not credentials:
     try:
         credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
-    except (FileNotFoundError, KeyError):
-        pass  # Handle the exception gracefully or log an appropriate message if needed
+    except KeyError:
+        st.write("KeyError: Unable to find GOOGLE_APPLICATION_CREDENTIALS in secrets.")
+    except FileNotFoundError:
+        st.write("FileNotFoundError: Couldn't find the Google Credentials file.")
+    except Exception as e:
+        st.write(f"An error occurred: {e}")
 
-# Now you can use `credentials` in your code
-st.write(credentials)
+if credentials:
+    st.write("Credentials successfully loaded.")
+else:
+    st.write("Failed to load credentials.")
+
