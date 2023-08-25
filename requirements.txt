@@ -2,7 +2,7 @@ altair==4.1.0
 geopy==2.3.0
 geopandas==0.13.2
 google-cloud-storage==2.10.0
-ifcopenshell==0.7.0.230218
+ifcopenshell==0.7.0
 matplotlib==3.6.1
 numpy==1.23.1
 pandas==2.0.3
