@@ -1,16 +1,18 @@
-import streamlit as st
-import ifcopenshell
-import pandas as pd
-from tools import ifchelper
-from geopy.extra.rate_limiter import RateLimiter
-from geopy.geocoders import Nominatim
 import numpy as np
+import ifcopenshell
 import io
-from google.cloud import storage
-from google.oauth2.service_account import Credentials
+import pandas as pd
+import streamlit as st
 import tempfile
+import toml
+import os
 from datetime import datetime
 from io import BytesIO
+from geopy.extra.rate_limiter import RateLimiter
+from geopy.geocoders import Nominatim
+from google.cloud import storage
+from google.oauth2.service_account import Credentials
+from tools import ifchelper
 
 # ========== Page title and welcome message, page config ==========
 
@@ -28,6 +30,21 @@ with st.sidebar:
     with st.expander("Dung Beetle - user manual"):
         st.write("To upload your BIM project into the Dung Beetle Warehouse use the settings from the attached ArchiCAD template. At this stage ArchiCAD 26 is supported, templates for other BIM programms and previous ArchiCAD versions are planned for future releases.")
         st.markdown("[Download ArchiCAD template](https://storage.googleapis.com/dungbeetle_media/DungBeetleMaterialWarehouseTemplateAC26.tpl)")
+
+# ========== Fetch SECRETS ==========
+
+try:
+    # Try to get the password using Streamlit's built-in secrets management
+    correct_password = st.secrets["ADMIN_CREDENTIALS"]["password"]
+except KeyError:
+    # If that fails, try to get the password from the Heroku environment variable
+    toml_string = os.environ.get("SECRETS_TOML", "")
+    if toml_string:
+        parsed_toml = toml.loads(toml_string)
+        correct_password = parsed_toml.get("ADMIN_CREDENTIALS", {}).get("password", "")
+
+# Now you can use `correct_password` in your code
+
 
 # ========== Create a Google Cloud Storage client ==========
 
@@ -429,8 +446,7 @@ def main_app():
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-def check_password(password_input):
-    correct_password = st.secrets["ADMIN_CREDENTIALS"]["password"]
+def check_password(password_input, correct_password):
     if password_input == correct_password:
         return True
     return False
@@ -441,7 +457,7 @@ if not st.session_state.logged_in:
     password_input = st.text_input("Enter Password", type='password')
 
     if st.button("Login"):
-        if check_password(password_input):
+        if check_password(password_input, correct_password):
             st.session_state.logged_in = True
             main_app()
         else:
