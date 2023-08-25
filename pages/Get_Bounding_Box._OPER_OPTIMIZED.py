@@ -185,11 +185,9 @@ def process_ifc_element(element, settings):
         yield {
             "GlobalId": element.GlobalId,
             "Type": element.is_a(),
-            "Volume": get_volume(geometry),
             "X": get_x(geometry),
             "Y": get_y(geometry),
             "Z": get_z(geometry),
-            "Area": get_area(geometry)
         }
     except Exception as e:  # Replace with the specific exceptions you expect
         st.warning(f"Failed to process {element.GlobalId} due to {str(e)}")
@@ -212,7 +210,10 @@ def main():
         for element in ifc_file.by_type("IfcElement"):
             for result in process_ifc_element(element, settings):
                 if result:
-                    df = df.append(result, ignore_index=True)
+                    # Explicitly create a DataFrame from the yielded result
+                    temp_df = pd.DataFrame([result])
+                    # Append the new DataFrame to the original DataFrame
+                    df = pd.concat([df, temp_df], ignore_index=True)
         
         st.write(df)
 
