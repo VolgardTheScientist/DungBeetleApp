@@ -203,30 +203,42 @@ def main():
         ifc_file = ifcopenshell.open(tfile.name)
         settings = ifcopenshell.geom.settings()
         
-        # Initialize an empty DataFrame with the columns
-        df = pd.DataFrame(columns=["GlobalId", "Type", "X", "Y", "Z"])
+        # Create an empty DataFrame
+        displayed_df = pd.DataFrame(columns=["GlobalId", "Type", "Volume", "X", "Y", "Z", "Area"])
         
-        batch_size = 50  # Adjust the batch size based on your server's memory capacity
+        # Create a placeholder for the Streamlit DataFrame
+        st_data_frame = st.empty()
+        
+        # Initialize the Streamlit DataFrame with the empty DataFrame
+        st_data_frame.dataframe(displayed_df)
+        
+        batch_size = 10  # Reduced batch size
         element_batch = []
         
-        # Process elements in batches
         for element in ifc_file.by_type("IfcElement"):
             element_batch.append(element)
             
             if len(element_batch) == batch_size:
                 for result in process_ifc_batch(element_batch, settings):
                     if result:
+                        # Append the new result to the displayed DataFrame
                         temp_df = pd.DataFrame([result])
-                        df = pd.concat([df, temp_df], ignore_index=True)
+                        displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
+                
+                # Update the Streamlit DataFrame
+                st_data_frame.dataframe(displayed_df)
                 element_batch = []
         
         # Process any remaining elements in the last batch
         for result in process_ifc_batch(element_batch, settings):
             if result:
                 temp_df = pd.DataFrame([result])
-                df = pd.concat([df, temp_df], ignore_index=True)
+                displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
+        
+        if not displayed_df.empty:
+            # Update the Streamlit DataFrame one last time to make sure all data is displayed
+            st_data_frame.dataframe(displayed_df)
 
-        st.write(df)
 
 if __name__ == "__main__":
     main()
