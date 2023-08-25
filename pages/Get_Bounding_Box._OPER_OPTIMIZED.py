@@ -204,12 +204,15 @@ def main():
         settings = ifcopenshell.geom.settings()
         
         # Create an empty DataFrame
-        displayed_df = pd.DataFrame(columns=["GlobalId", "Type", "X", "Y", "Z"])
-             
-        # Initialize the Streamlit DataFrame with the empty DataFrame
-        st.dataframe(displayed_df)
+        displayed_df = pd.DataFrame(columns=["GlobalId", "Type", "Volume", "X", "Y", "Z", "Area"])
         
-        batch_size = 2  # Reduced batch size
+        # Create a placeholder for the Streamlit DataFrame
+        st_data_frame = st.empty()
+        
+        # Initialize the Streamlit DataFrame with the empty DataFrame
+        st_data_frame.dataframe(displayed_df)
+        
+        batch_size = 1  # Reduced batch size
         element_batch = []
         
         for element in ifc_file.by_type("IfcElement"):
@@ -223,7 +226,7 @@ def main():
                         displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
                 
                 # Update the Streamlit DataFrame
-                st.dataframe(displayed_df)
+                st_data_frame.dataframe(displayed_df)
                 element_batch = []
         
         # Process any remaining elements in the last batch
@@ -234,7 +237,27 @@ def main():
         
         if not displayed_df.empty:
             # Update the Streamlit DataFrame one last time to make sure all data is displayed
-            st.dataframe(displayed_df)
+            st_data_frame.dataframe(displayed_df)
+            
+    if not displayed_df.empty:
+        # Convert the DataFrame to a CSV string
+        csv_text = displayed_df.to_csv(index=False)
+        
+        # Use JavaScript to create a blob and download it automatically
+        js_code = f'''
+        var csv = "{csv_text}";
+        var blob = new Blob([csv], {{ type: "text/csv;charset=utf-8;" }});
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "result.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        '''
+        
+        # Use Streamlit's markdown renderer to trigger the JavaScript code
+        st.markdown(js_code, unsafe_allow_html=True)
+
 
 
 if __name__ == "__main__":
