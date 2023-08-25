@@ -7,6 +7,7 @@ import ifcopenshell
 import tempfile
 import base64
 import requests
+import toml
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
@@ -19,8 +20,30 @@ st.title("Digital material warehouse")
 # point to the key file - ONLY for LOCAL TESTING
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
 
+# ========== Fetch SECRETS Google Credentials ==========
+
+# Initialize credentials to None
+credentials = ""
+
+# First, try to get the credentials from the Heroku environment variable
+toml_string = os.environ.get("SECRETS_TOML", "")
+if toml_string:
+    parsed_toml = toml.loads(toml_string)
+    google_app_credentials = parsed_toml.get("GOOGLE_APPLICATION_CREDENTIALS", {})
+    if google_app_credentials:
+        credentials = Credentials.from_service_account_info(google_app_credentials)
+
+# If the above fails, then try to get the credentials using Streamlit's built-in secrets management
+if not credentials:
+    try:
+        credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    except (FileNotFoundError, KeyError):
+        pass  # Handle the exception gracefully or log an appropriate message if needed
+
+# Now you can use `credentials` in your code
+
 # Create a Google Cloud Storage client
-credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+# credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]) - this code worked in StremlitCloud
 storage_client = storage.Client(credentials=credentials)
 
 
@@ -49,8 +72,7 @@ def download_ifc_file_from_gcs(ifc_file_name):
     # Debugging code: st.write(local_path)
     return local_path
 
-def upload_to_gcs(data, bucket_name, blob_name):
-    credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+def upload_to_gcs(data, bucket_name, blob_name, credentials):
     storage_client = storage.Client(credentials=credentials)
     bucket = storage_client.bucket(bucket_name)
     # List all blobs and convert the iterator to a list
@@ -307,7 +329,7 @@ def create_user_interface():
                         new_ifc_file_str, new_ifc_file_name = download_product_by_guid(input_file_name, input_guid)
 
                         # Upload the IFC data to Google Cloud Storage
-                        url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name)
+                        url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name, credentials)
                         url = url_to_ifc_file
                 
 

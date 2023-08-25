@@ -50,7 +50,6 @@ if not correct_password:
         pass  # Handle the exception gracefully or log an appropriate message if needed
 
 # Now you can use `correct_password` in your code
-st.write(correct_password)
 
 # ========== Fetch SECRETS Google Credentials ==========
 
@@ -73,7 +72,6 @@ if not credentials:
         pass  # Handle the exception gracefully or log an appropriate message if needed
 
 # Now you can use `credentials` in your code
-st.write(credentials)
 
 # ========== Create a Google Cloud Storage client ==========
 
