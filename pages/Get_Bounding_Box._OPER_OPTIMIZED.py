@@ -238,25 +238,24 @@ def main():
         if not displayed_df.empty:
             # Update the Streamlit DataFrame one last time to make sure all data is displayed
             st_data_frame.dataframe(displayed_df)
+
+            # Convert the DataFrame to a CSV string
+            csv_text = displayed_df.to_csv(index=False)
             
-    if not displayed_df.empty:
-        # Convert the DataFrame to a CSV string
-        csv_text = displayed_df.to_csv(index=False)
-        
-        # Use JavaScript to create a blob and download it automatically
-        js_code = f'''
-        var csv = "{csv_text}";
-        var blob = new Blob([csv], {{ type: "text/csv;charset=utf-8;" }});
-        var link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "result.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        '''
-        
-        # Use Streamlit's markdown renderer to trigger the JavaScript code
-        st.markdown(js_code, unsafe_allow_html=True)
+            # Use JavaScript to create a blob and download it automatically
+            js_code = f'''
+            var csv = "{csv_text}";
+            var blob = new Blob([csv], {{ type: "text/csv;charset=utf-8;" }});
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "result.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            '''
+            
+            # Use Streamlit's markdown renderer to trigger the JavaScript code
+            st.markdown(js_code, unsafe_allow_html=True)
 
 
 
