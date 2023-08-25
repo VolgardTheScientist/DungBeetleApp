@@ -204,15 +204,12 @@ def main():
         settings = ifcopenshell.geom.settings()
         
         # Create an empty DataFrame
-        displayed_df = pd.DataFrame(columns=["GlobalId", "Type", "Volume", "X", "Y", "Z", "Area"])
-        
-        # Create a placeholder for the Streamlit DataFrame
-        st_data_frame = st.empty()
-        
+        displayed_df = pd.DataFrame(columns=["GlobalId", "Type", "X", "Y", "Z"])
+             
         # Initialize the Streamlit DataFrame with the empty DataFrame
-        st_data_frame.dataframe(displayed_df)
+        st.dataframe(displayed_df)
         
-        batch_size = 10  # Reduced batch size
+        batch_size = 2  # Reduced batch size
         element_batch = []
         
         for element in ifc_file.by_type("IfcElement"):
@@ -226,7 +223,7 @@ def main():
                         displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
                 
                 # Update the Streamlit DataFrame
-                st_data_frame.dataframe(displayed_df)
+                st.dataframe(displayed_df)
                 element_batch = []
         
         # Process any remaining elements in the last batch
@@ -237,7 +234,7 @@ def main():
         
         if not displayed_df.empty:
             # Update the Streamlit DataFrame one last time to make sure all data is displayed
-            st_data_frame.dataframe(displayed_df)
+            st.dataframe(displayed_df)
 
 
 if __name__ == "__main__":
