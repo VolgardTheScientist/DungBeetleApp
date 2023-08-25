@@ -31,7 +31,7 @@ with st.sidebar:
         st.write("To upload your BIM project into the Dung Beetle Warehouse use the settings from the attached ArchiCAD template. At this stage ArchiCAD 26 is supported, templates for other BIM programms and previous ArchiCAD versions are planned for future releases.")
         st.markdown("[Download ArchiCAD template](https://storage.googleapis.com/dungbeetle_media/DungBeetleMaterialWarehouseTemplateAC26.tpl)")
 
-# ========== Fetch SECRETS ==========
+# ========== Fetch SECRETS Admin Login ==========
 
 # Initialize correct_password to an empty string
 correct_password = ""
@@ -49,9 +49,35 @@ if not correct_password:
     except (FileNotFoundError, KeyError):
         pass  # Handle the exception gracefully or log an appropriate message if needed
 
+# Now you can use `correct_password` in your code
+st.write(correct_password)
+
+# ========== Fetch SECRETS Google Credentials ==========
+
+# Initialize credentials to None
+credentials = ""
+
+# First, try to get the credentials from the Heroku environment variable
+toml_string = os.environ.get("SECRETS_TOML", "")
+if toml_string:
+    parsed_toml = toml.loads(toml_string)
+    google_app_credentials = parsed_toml.get("GOOGLE_APPLICATION_CREDENTIALS", {})
+    if google_app_credentials:
+        credentials = Credentials.from_service_account_info(google_app_credentials)
+
+# If the above fails, then try to get the credentials using Streamlit's built-in secrets management
+if not credentials:
+    try:
+        credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+    except (FileNotFoundError, KeyError):
+        pass  # Handle the exception gracefully or log an appropriate message if needed
+
+# Now you can use `credentials` in your code
+st.write(credentials)
+
 # ========== Create a Google Cloud Storage client ==========
 
-credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"])
+# credentials = Credentials.from_service_account_info(st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]) -> This code worked with StreamlitCloud
 storage_client = storage.Client(credentials=credentials)
 
 
