@@ -196,6 +196,7 @@ def process_ifc_batch(element_batch, settings):
 
 def main():
     uploaded_file = st.file_uploader("Upload an IFC file", type=["ifc"])
+    IfcEntities = ["IfcSanitaryTerminal", "IfcDoor", "IfcCovering", "IfcWall", "IfcWindow"]
     
     if uploaded_file:
         with tempfile.NamedTemporaryFile(delete=False) as tfile:
@@ -217,18 +218,19 @@ def main():
         element_batch = []
         
         for element in ifc_file.by_type("IfcElement"):
-            element_batch.append(element)
-            
-            if len(element_batch) == batch_size:
-                for result in process_ifc_batch(element_batch, settings):
-                    if result:
-                        # Append the new result to the displayed DataFrame
-                        temp_df = pd.DataFrame([result])
-                        displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
+            if element.is_a() in IfcEntities:
+                element_batch.append(element)
                 
-                # Update the Streamlit DataFrame
-                st_data_frame.dataframe(displayed_df)
-                element_batch = []
+                if len(element_batch) == batch_size:
+                    for result in process_ifc_batch(element_batch, settings):
+                        if result:
+                            # Append the new result to the displayed DataFrame
+                            temp_df = pd.DataFrame([result])
+                            displayed_df = pd.concat([displayed_df, temp_df], ignore_index=True)
+                    
+                    # Update the Streamlit DataFrame
+                    st_data_frame.dataframe(displayed_df)
+                    element_batch = []
         
         # Process any remaining elements in the last batch
         for result in process_ifc_batch(element_batch, settings):
