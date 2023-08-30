@@ -13,8 +13,8 @@ from google.cloud import storage
 from google.oauth2.service_account import Credentials
 import json
 import urllib.parse
+from tools.MoveToOrigin import move_to_origin
 
-st.set_page_config(layout="wide")
 st.title("Digital material warehouse")
 
 # point to the key file - ONLY for LOCAL TESTING
@@ -161,6 +161,8 @@ def download_product_by_guid(input_file_name, guid):
 
     for unit in src_ifc_file.by_type("IfcUnit"):
         new_project.UnitsInContext.Units.append(new_ifc_file.add(unit))
+
+    move_to_origin(new_ifc_file, guid)
 
     new_ifc_file_str = new_ifc_file.to_string()
     
