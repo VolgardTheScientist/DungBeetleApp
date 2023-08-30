@@ -12,6 +12,7 @@ from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
+from tools import BoundingBox 
 from tools import ifchelper
 
 # ========== Page title and welcome message, page config ==========
@@ -388,7 +389,7 @@ def main_app():
                 # DEBUG: st.write(warehouse_data)
                 # DEBUG: st.text(type(warehouse_data))
                 generated_df = ifchelper.create_pandas_dataframe(warehouse_data)
-                dimensions_df = get_IfcBoundingBox_dimensions(ifc_file_admin_upload, entity, conversion_factor)
+                dimensions_df = BoundingBox.get_bounding_box_dimensions(ifc_file_admin_upload, entity, conversion_factor)
                 # DEBUG: st.write(generated_df)
                 # DEBUG: st.write(dimensions_df) # DEBUG
                 generated_df = merge_dimensions_with_generated_df(dimensions_df, generated_df)
