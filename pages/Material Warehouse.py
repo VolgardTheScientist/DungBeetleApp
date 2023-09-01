@@ -1,24 +1,61 @@
-import os
+import numpy as np
+import base64
+import ifcopenshell
+import ifcopenshell.util
+import ifcopenshell.api
+import ifcopenshell.util.placement 
+import json
 import pandas as pd
 import pickle
-import streamlit as st
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-import ifcopenshell
-import tempfile
-import base64
 import requests
+import streamlit as st
+import sys
+import tempfile
 import toml
-from pages.ifc_viewer.ifc_viewer import ifc_viewer
+import os
+import urllib.parse
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
-import json
-import urllib.parse
-from tools.MoveToOrigin import move_to_origin
+from ifcopenshell.util.selector import Selector
+from pages.ifc_viewer.ifc_viewer import ifc_viewer
+from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+from vendor import ifcpatch
+
+sys.path.append('./vendor')
 
 st.title("Digital material warehouse")
 
-# point to the key file - ONLY for LOCAL TESTING
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(__file__), '..', 'keys', 'able-analyst-392315-77bb94fe797e.json')
+# ========== Move IfcSite, IfcBudilding, IfcElement to origin; Rename IfcProject to DungBeetle ==========
+
+def move_to_origin(ifc_file, guid):
+    part = ifc_file.by_guid(guid)
+    new_matrix = np.eye(4)
+    ifcopenshell.api.run("geometry.edit_object_placement", ifc_file, product=part, matrix=new_matrix)
+    return ifc_file
+
+def move_storey_to_origin(ifc_file, storey):
+    new_matrix = np.eye(4)
+    storey.Name = "Floor plan"
+    ifcopenshell.api.run("geometry.edit_object_placement", ifc_file, product=storey, matrix=new_matrix)
+    return ifc_file
+
+def move_site_origin_to_000(ifc_file):
+    site = ifc_file.by_type("IfcSite")[0]
+    new_matrix = np.eye(4)
+    ifcopenshell.api.run("geometry.edit_object_placement", ifc_file, product=site, matrix=new_matrix)
+    return ifc_file
+
+def move_building_origin_to_000(ifc_file):
+    building = ifc_file.by_type("IfcBuilding")[0]
+    building.Name = "Dung Beetle - Digital Material Warehouse"
+    new_matrix = np.eye(4)
+    ifcopenshell.api.run("geometry.edit_object_placement", ifc_file, product=building, matrix=new_matrix)
+    return ifc_file
+
+def change_project_name(ifc_file):
+    project = ifc_file.by_type("IfcProject")[0]
+    project.Name = "Dung Beetle - Digital Material Warehouse"
+    return ifc_file
 
 # ========== Fetch SECRETS Google Credentials ==========
 
@@ -146,25 +183,26 @@ tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if d
 selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 
 def download_product_by_guid(input_file_name, guid):
+    # Download and open an IFC source file
     src_ifc_file = ifcopenshell.open(download_ifc_file_from_gcs(f"{input_file_name}.ifc"))
+    
+    # Extract an element / object by GUID
+    extracted_ifc = ifcpatch.execute({"input": src_ifc_file, "file": src_ifc_file, "recipe": "ExtractElements", "arguments": [f"{guid}"]})
+    extracted_ifc = move_to_origin(extracted_ifc, guid)
+    extracted_ifc = move_site_origin_to_000(extracted_ifc)
+    extracted_ifc = move_building_origin_to_000(extracted_ifc)
+    extracted_ifc = change_project_name(extracted_ifc)
 
-    new_ifc_file = ifcopenshell.file(schema="IFC4")
-    product = src_ifc_file.by_guid(guid)
-    new_product = new_ifc_file.add(product)
+    # Adjust IfcStorey - move to 0,0,0 and rename to "Floor plans"
+    z_min = 0.0  # Storey elevation we want to move our extracted file
+    storey = extracted_ifc.by_type("IfcBuildingStorey")[0]
+    extracted_ifc = move_storey_to_origin(extracted_ifc, storey)
 
-    # Copy over the IfcUnitAssignment and related IfcSIUnits
-    original_project = src_ifc_file.by_type('IfcProject')[0]
-    new_project = new_ifc_file.add(original_project)
+    # Ensure the bottom edge of storey is located at 0,0
+    storey.Elevation = z_min
 
-    for unit_assignment in src_ifc_file.by_type("IfcUnitAssignment"):
-        new_project.UnitsInContext = new_ifc_file.add(unit_assignment)
-
-    for unit in src_ifc_file.by_type("IfcUnit"):
-        new_project.UnitsInContext.Units.append(new_ifc_file.add(unit))
-
-    move_to_origin(new_ifc_file, guid)
-
-    new_ifc_file_str = new_ifc_file.to_string()
+    # Convert IFC file to string
+    new_ifc_file_str = extracted_ifc.to_string()
     
     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
