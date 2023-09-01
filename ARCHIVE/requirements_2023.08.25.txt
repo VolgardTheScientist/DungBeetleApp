@@ -1,6 +1,6 @@
-streamlit
+streamlit==1.25.0
 streamlit-aggrid
-ifcopenshell
+ifcopenshell==0.7.0.230811
 matplotlib
 plotly
 pandas==2.0.3
@@ -8,3 +8,5 @@ xlsxwriter
 geopandas
 geopy
 google-cloud-storage
+Numpy==1.25.2
+AGgrid==0.3.4.post3

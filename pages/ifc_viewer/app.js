@@ -38,6 +38,34 @@ async function loadIfc(url) {
     await viewer.shadowDropper.renderShadow(model.modelID);
     viewer.context.renderer.postProduction.active = true;
 
+    
+
+    // Add download IFC button
+    const container = document.getElementById("button-container");
+
+    const buttonIfc = document.createElement("button");
+    container.appendChild(buttonIfc);
+    buttonIfc.textContent = "Download IFC";
+    buttonIfc.onclick = (event) => {
+        event.preventDefault(); // Add this line to prevent the default action
+        if (fileUrl !== '') {
+            fetch(fileUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const href = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = href;
+                    link.download = 'reuse_component.ifc';
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                })
+                .catch(console.error);
+        } else {
+            console.log("No file URL has been passed from Python.")
+        }
+    };
+
     await viewer.plans.computeAllPlanViews(model.modelID);
 
     // Floor plan navigation 
@@ -58,7 +86,7 @@ async function loadIfc(url) {
     
     const allPlans = viewer.plans.getAll(model.modelID);
     
-    const container = document.getElementById("button-container");
+
     
     for (const plan of allPlans) {
       const currentPlan = viewer.plans.planLists[model.modelID][plan];
@@ -98,31 +126,9 @@ function onDataFromPython(event) {
 
 let fileUrl = ''; // This will hold the URL of the file to download
 
-const container = document.getElementById("button-container");
 
-const button_container = document.getElementById("button-container");
-const button = document.createElement("button");
-button_container.appendChild(button);
-button.textContent = "Download IFC";
-button.onclick = (event) => {
-    event.preventDefault(); // Add this line to prevent the default action
-    if (fileUrl !== '') {
-        fetch(fileUrl)
-            .then(response => response.blob())
-            .then(blob => {
-                const href = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = href;
-                link.download = 'reuse_component.ifc';
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            })
-            .catch(console.error);
-    } else {
-        console.log("No file URL has been passed from Python.")
-    }
-};
+
+
 
 // Hook things up!
 window.addEventListener("message", onDataFromPython);
