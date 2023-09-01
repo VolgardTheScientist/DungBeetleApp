@@ -153,7 +153,8 @@ tab_map = {
     'wh_IfcSanitaryTerminal': 'Sanitary fixtures & fittings',
     'wh_IfcCovering': 'Finishes',
     'wh_IfcWall': 'Walls',
-    'wh_IfcDoor': 'Doors'
+    'wh_IfcDoor': 'Doors',
+    'wh_IfcWindow': 'Windows'
 }
 
 pickle_bucket_name = 'pickle_warehouse'
