@@ -1,6 +1,7 @@
 
-import { Color } from "three";
 import { IfcViewerAPI } from "web-ifc-viewer";
+import { Color, LineBasicMaterial, MeshBasicMaterial } from "three";
+
 
 function sendMessageToStreamlitClient(type, data) {
     const message = { ...data, isStreamlitMessage: true, type };
