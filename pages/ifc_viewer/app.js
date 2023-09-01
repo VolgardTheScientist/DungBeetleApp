@@ -36,6 +36,7 @@ async function loadIfc(url) {
   
     // Add dropped shadow and post-processing effect
     await viewer.shadowDropper.renderShadow(model.modelID);
+    viewer.context.renderer.postProduction.active = true;
 
     await viewer.plans.computeAllPlanViews(model.modelID);
 
