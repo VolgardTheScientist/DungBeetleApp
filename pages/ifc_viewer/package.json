@@ -5,17 +5,19 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
-		"watch": "rollup -c -w"
+    "watch": "rollup -c -w"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "rollup": "^3.24.0"
   },
   "dependencies": {
+    "dxf-writer": "^1.18.4",
     "three": "^0.135.0",
-    "web-ifc-viewer": "^1.0.216"
+    "web-ifc-viewer": "^1.0.217"
   }
 }

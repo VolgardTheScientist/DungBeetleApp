@@ -37,7 +37,7 @@ html, body {
     text-decoration: none; /* no underline */
     display: inline-block;
     font-size: 1rem; /* text size */
-    margin: 1rem 1rem; /* margin around button */
+    margin: 0.5rem 0.5rem; /* margin around button */
     cursor: pointer; /* cursor changes to hand icon on hover */
     border-radius: 0.5rem; /* rounded corners */
     min-height: 38.4px;
