@@ -3,11 +3,9 @@ import base64
 import ifcopenshell
 import ifcopenshell.util
 import ifcopenshell.api
-import ifcopenshell.util.placement 
-import json
+import ifcopenshell.util.placement
 import pandas as pd
 import pickle
-import requests
 import streamlit as st
 import sys
 import tempfile
@@ -16,9 +14,8 @@ import os
 import urllib.parse
 from google.cloud import storage
 from google.oauth2.service_account import Credentials
-from ifcopenshell.util.selector import Selector
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
 from vendor import ifcpatch
 
 sys.path.append('./vendor')
@@ -103,11 +100,68 @@ def get_gcs_bucket_files(bucket_name):
     # Get the list of pickle file names
     return [blob.name for blob in blobs if blob.name.endswith('.pickle')]
 
+#@st.cache_data
+#def download_ifc_file_from_gcs_as_string(bucket_name, folder_name, guid):
+#    bucket = storage_client.get_bucket(bucket_name)
+
+#    blob_name = f"{folder_name}_{guid}.ifc"
+#    source_blob_name = f"{folder_name}/{blob_name}"
+#    
+#    # Download the blob to a local file
+#    blob = bucket.blob(source_blob_name)
+#    
+#    blob.download_to_filename(blob_name)
+#    
+#    # Open the IFC file and convert to string
+#    ifc_file = ifcopenshell.open(blob_name)
+#    new_ifc_file_str = ifc_file.to_string()
+#    new_ifc_file_name = blob_name
+#    
+#    return new_ifc_file_str, new_ifc_file_name
+
+@st.cache_data
+def download_ifc_file_from_gcs_as_string(bucket_name, folder_name, guid):
+    bucket = storage_client.get_bucket(bucket_name)
+   
+    blob_name = f"{folder_name}_{guid}.ifc"
+    source_blob_name = f"{folder_name}/{blob_name}"
+
+    local_path = os.path.join(tempfile.gettempdir(), blob_name)
+
+    # Download the blob to the temporary local file
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(local_path)
+ 
+    # Open the IFC file and convert to string
+    ifc_file = ifcopenshell.open(local_path)
+    new_ifc_file_str = ifc_file.to_string()
+
+    # Optionally, remove the temporary file if you no longer need it
+    os.remove(local_path)
+
+    new_ifc_file_name = blob_name
+
+    return new_ifc_file_str, new_ifc_file_name
+
+
+
 def download_ifc_file_from_gcs(ifc_file_name):
     local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
     download_file_from_gcs('ifc_warehouse', ifc_file_name, local_path)
     # Debugging code: st.write(local_path)
     return local_path
+
+def download_extracted_ifc_file_from_gcs(ifc_file_name):
+    local_path = os.path.join(tempfile.gettempdir(), ifc_file_name)  # using tempfile for cross-platform compatibility
+    download_file_from_gcs_folder('ifc_warehouse', ifc_file_name, ifc_file_name, local_path)
+    return local_path
+
+def download_file_from_gcs_folder(bucket_name, folder_name, file_name, destination_file_name):
+    bucket = storage_client.get_bucket(bucket_name)   
+    # Combine folder_name and file_name to get the full blob_name
+    blob_name = f"{folder_name}/{file_name}"   
+    blob = bucket.blob(blob_name)
+    blob.download_to_filename(destination_file_name)
 
 def upload_to_gcs(data, bucket_name, blob_name, credentials):
     storage_client = storage.Client(credentials=credentials)
@@ -207,6 +261,13 @@ def download_product_by_guid(input_file_name, guid):
     
     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
+def download_extracted_product_by_guid(input_file_name, guid):
+    # Download and open an IFC source file
+    src_ifc_file = ifcopenshell.open(download_extracted_ifc_file_from_gcs(f"{input_file_name}_{guid}.ifc"))
+    # Convert IFC file to string
+    new_ifc_file_str = src_ifc_file .to_string()
+    
+    return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
 def get_binary_file_downloader_link(file_path, file_label):
     with open(file_path, "rb") as f:
@@ -342,12 +403,13 @@ def create_user_interface():
             if 'Project ID' in sel_row_for_map.columns and not sel_row_for_map.empty:
                 Project_ID = sel_row_for_map['Project ID'].iloc[0]
                 Project_ID = str(Project_ID)
+                
             else:
                 Project_ID = None       
 
             with st.sidebar:
                 input_file_name = Project_ID
-                input_guid = None  # Initialize input_guid as None
+                input_guid = None  # Initialize input_guid as None                
 
                 # Initialize url_to_ifc_file as an empty string
                 url_to_ifc_file = ''
@@ -357,9 +419,7 @@ def create_user_interface():
                 if 'Global ID' in sel_row_for_map.columns:
                     input_guid = sel_row_for_map['Global ID'].iloc[0]
 
-                button_style = (
-                    "display: none; "
-                )
+                button_style = ("display: none; ")
 
                 # if st.button("Preview") - this requires end-user to activate preview by clicking:
                 if st.sidebar.markdown(
@@ -367,16 +427,12 @@ def create_user_interface():
                     unsafe_allow_html=True
                 ):
                     if input_file_name and input_guid:
-                        new_ifc_file_str, new_ifc_file_name = download_product_by_guid(input_file_name, input_guid)
-
+                        new_ifc_file_str, new_ifc_file_name = download_ifc_file_from_gcs_as_string('ifc_warehouse', input_file_name, input_guid)
+                        
                         # Upload the IFC data to Google Cloud Storage
                         url_to_ifc_file = upload_to_gcs(new_ifc_file_str, 'streamlit_warehouse', new_ifc_file_name, credentials)
                         url = url_to_ifc_file
                 
-
-
-
-
             # Call the IFC viewer function
             with col2:
                 st.subheader('Product preview')  
