@@ -18,7 +18,7 @@ from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
 from vendor import ifcpatch
 
-sys.path.append('./vendor')
+sys.path.append('./admin/vendor')
 
 st.title("Digital material warehouse")
 
