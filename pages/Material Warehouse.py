@@ -16,9 +16,12 @@ from google.cloud import storage
 from google.oauth2.service_account import Credentials
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
-from vendor import ifcpatch
 
 sys.path.append('./admin/vendor')
+
+from vendor import ifcpatch
+
+
 
 st.title("Digital material warehouse")
 
