@@ -17,9 +17,8 @@ from google.oauth2.service_account import Credentials
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
 
-sys.path.append('../admin/vendor/ifcpatch')
-
-from vendor import ifcpatch
+# sys.path.append('./vendor')
+# from vendor import ifcpatch
 
 
 
@@ -240,29 +239,29 @@ tab_names = [tab_map.get(df_name, df_name) for df_name in dataframes.keys() if d
 
 selected_tab = st.sidebar.selectbox("Select a product group", tab_names)
 
-def download_product_by_guid(input_file_name, guid):
-    # Download and open an IFC source file
-    src_ifc_file = ifcopenshell.open(download_ifc_file_from_gcs(f"{input_file_name}.ifc"))
-    
-    # Extract an element / object by GUID
-    extracted_ifc = ifcpatch.execute({"input": src_ifc_file, "file": src_ifc_file, "recipe": "ExtractElements", "arguments": [f"{guid}"]})
-    extracted_ifc = move_to_origin(extracted_ifc, guid)
-    extracted_ifc = move_site_origin_to_000(extracted_ifc)
-    extracted_ifc = move_building_origin_to_000(extracted_ifc)
-    extracted_ifc = change_project_name(extracted_ifc)
-
-    # Adjust IfcStorey - move to 0,0,0 and rename to "Floor plans"
-    z_min = 0.0  # Storey elevation we want to move our extracted file
-    storey = extracted_ifc.by_type("IfcBuildingStorey")[0]
-    extracted_ifc = move_storey_to_origin(extracted_ifc, storey)
-
-    # Ensure the bottom edge of storey is located at 0,0
-    storey.Elevation = z_min
-
-    # Convert IFC file to string
-    new_ifc_file_str = extracted_ifc.to_string()
-    
-    return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
+# def download_product_by_guid(input_file_name, guid):
+#     # Download and open an IFC source file
+#     src_ifc_file = ifcopenshell.open(download_ifc_file_from_gcs(f"{input_file_name}.ifc"))
+#     
+#     # Extract an element / object by GUID
+#     extracted_ifc = ifcpatch.execute({"input": src_ifc_file, "file": src_ifc_file, "recipe": "ExtractElements", "arguments": [f"{guid}"]})
+#     extracted_ifc = move_to_origin(extracted_ifc, guid)
+#     extracted_ifc = move_site_origin_to_000(extracted_ifc)
+#     extracted_ifc = move_building_origin_to_000(extracted_ifc)
+#     extracted_ifc = change_project_name(extracted_ifc)
+# 
+#     # Adjust IfcStorey - move to 0,0,0 and rename to "Floor plans"
+#     z_min = 0.0  # Storey elevation we want to move our extracted file
+#     storey = extracted_ifc.by_type("IfcBuildingStorey")[0]
+#     extracted_ifc = move_storey_to_origin(extracted_ifc, storey)
+# 
+#     # Ensure the bottom edge of storey is located at 0,0
+#     storey.Elevation = z_min
+# 
+#     # Convert IFC file to string
+#     new_ifc_file_str = extracted_ifc.to_string()
+#     
+#     return new_ifc_file_str, f"{os.path.splitext(input_file_name)[0]}_{guid}.ifc"
 
 def download_extracted_product_by_guid(input_file_name, guid):
     # Download and open an IFC source file
