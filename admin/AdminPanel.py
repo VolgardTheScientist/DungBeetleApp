@@ -364,7 +364,19 @@ def extract_and_save_element(ifc_file, guid, save_dir, original_filename):
     # Ensure the bottom edge of storey is located at 0,0
     storey.Elevation = z_min
     temp_file_path = os.path.join(save_dir, f"{original_filename}_{guid}.ifc")
+    extracted_file_name = f"{original_filename}_{guid}.ifc"
     extracted_ifc.write(temp_file_path)
+    return temp_file_path, extracted_file_name  # Return the path of the saved file
+
+
+# ========== Google Cloud Storage Functions ==========
+
+# ... (previous code for setting up Google Cloud Storage and Streamlit elements)
+
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+    blob.upload_from_filename(source_file_name)
 
 
 # ========== Main app ==========
@@ -477,7 +489,7 @@ if uploaded_file:
 
                 if proceed_to_step_6 == True:
                     st.success(f"Folder '**{folder_name}**' was successfuly created in bucket '**{bucket_name}**'")
-                    with st.spinner("Your products are being extracted..."):
+                    with st.spinner("Your products are being extracted..."), tempfile.TemporaryDirectory() as tmpdirname:
                         # Check what IfcEntity types exist in the Ifc file
                         unique_entity_types = set()
 
@@ -494,7 +506,8 @@ if uploaded_file:
                         unique_element_types = set()
 
                         # Create a local directory for saving parts:
-                        save_dir = r"C:\Users\Piotr\Extracted_IFCs_001"
+                        # save_dir = r"C:\Users\Piotr\Extracted_IFCs_001"
+                        save_dir = tmpdirname
 
                         for elem in all_elements:
                             unique_element_types.add(elem.is_a())
@@ -504,10 +517,14 @@ if uploaded_file:
                             elements = ifc_file.by_type(element_type)
                             for element in elements:
                                 guid = element.GlobalId
-                                extract_and_save_element(ifc_file, guid, save_dir, original_filename)
+                                extracted_file_path, extracted_file_name = extract_and_save_element(ifc_file, guid, save_dir, original_filename)
+
+                                # Upload the extracted file to GCS
+                                destination_blob_name = f"{folder_name}/{extracted_file_name}"
+                                upload_blob(bucket_name, extracted_file_path, destination_blob_name)
 
                         
-                        st.success(f"All elements have been extracted and saved.")
+                        st.success(f"All elements have been extracted and saved to GCS bucket.")
 
 
 
