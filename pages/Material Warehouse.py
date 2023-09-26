@@ -17,7 +17,7 @@ from google.oauth2.service_account import Credentials
 from pages.ifc_viewer.ifc_viewer import ifc_viewer
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
 
-sys.path.append('../admin/vendor')
+sys.path.append('../admin/vendor/ifcpatch')
 
 from vendor import ifcpatch
 
