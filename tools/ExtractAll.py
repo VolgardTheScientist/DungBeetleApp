@@ -88,6 +88,7 @@ uploaded_file = st.file_uploader("Choose an IFC file", type=['ifc'])
 
 if uploaded_file:
     original_filename = uploaded_file.name.split('.')[0]
+    
     with st.spinner("Your products are being extracted..."):
         time.sleep(2)
         tfile = tempfile.NamedTemporaryFile(delete=False) 
@@ -104,6 +105,9 @@ if uploaded_file:
         # Iterate through IFC file to check available IfcEntities, append them to unique_entity_types 
         for entity in ifc:
             unique_entity_types.add(entity.is_a())  # 'is_a' gives the type of the entity
+
+        # DEBUGGING
+        st.write(unique_entity_types)
 
         all_elements = []
         for entity_type in unique_entity_types:
